@@ -1,0 +1,29 @@
+<scene 
+	background-col="0.3 0.5 0.74" 
+	ambient-light="1 1 1" 
+>
+
+	<camera
+	eye="0 0 0"
+	direction="0 0 -1"
+	screen-width="2"
+	screen-dist="1"
+	up-direction="0 1 0"
+	/>
+
+
+	<triangle 
+	p0 = "-1 -1 -2"
+	p1 = "1  -1 -2"
+	p2 = "-1 1 -2"
+	/>
+
+	<light-point 
+	pos="1 0 0"
+	color="1 1 1"
+	/>
+
+</scene>
+
+
+

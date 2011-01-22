@@ -1,0 +1,45 @@
+<scene 
+	background-col="0.3 0.5 0.74" 
+	ambient-light="1 1 1" 
+>
+
+	<camera
+	eye="-0.5 1.5 -1"
+	look-at="0 0 -0.5"
+	screen-width="2"
+	screen-dist="1"
+	up-direction="0 1 0"
+	/>
+
+
+
+	<pyramid
+	p0 = "-1 0 0"
+	p1 = "1 0 0"
+	p2 = "0 0 -1"
+	p3 = "0 0.5 -0.5"
+	mtl-diffuse="0.5 0 0"
+	/>
+
+
+	<rectangle 
+	p0 = "-10 0 10"
+	p1 = "10 0 10"
+	p2 = "-10 0 -10"
+	mtl-type = "checkers"
+	checkers-size="0.05"
+	checkers-diffuse1="0 1 1"
+	checkers-diffuse2="1 1 0"
+	/>
+
+
+	<light-point 
+	pos="-0.5 1 -0.6"
+	color="1 1 1"
+	/>
+
+
+</scene>
+
+
+

@@ -1,0 +1,49 @@
+<scene 
+	background-col="0.3 0.5 0.74" 
+	ambient-light="1 1 1" 
+>
+
+	<camera
+	eye="0 0 0"
+	direction="0 0 -1"
+	screen-width="2"
+	screen-dist="1"
+	up-direction="0 1 0"
+	/>
+
+
+	<sphere 
+	center="0.25 0.25 -1"	
+	radius="0.25"
+	mtl-specular = "1 1 0"
+	mtl-shininess = "5"
+	/>
+	<sphere 
+	center="0.25 -0.25 -1"	
+	radius="0.25"
+	mtl-specular = "1 1 0"
+	mtl-shininess = "20"
+	/>
+	<sphere 
+	center="-0.25 0.25 -1"	
+	radius="0.25"
+	mtl-specular = "1 1 0"
+	mtl-shininess = "200"
+	/>
+	<sphere 
+	center="-0.25 -0.25 -1"	
+	radius="0.25"
+	mtl-specular = "1 1 0"
+	mtl-shininess = "2000"
+	/>
+
+
+	<light-point 
+	pos="10 10 10"
+	color="1 1 1"
+	/>
+
+</scene>
+
+
+

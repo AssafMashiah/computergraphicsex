@@ -1,0 +1,72 @@
+<scene 
+	background-col="0.3 0.5 0.74" 
+	ambient-light="1 1 1" 
+	background-tex = "RollingHills.jpg"
+>
+
+	<camera
+	eye="2.5 0.7 1.4"
+	look-at="0.5 1.2 -0.5"
+	screen-width="2"
+	screen-dist="1"
+	up-direction="0 1 0"
+	/>
+
+	<rectangle 
+	p0 = "1.0001 0.333 -0.333"
+	p1 = "1.0001 0.666 -0.333"
+	p2 = "1.0001 0.333 -0.666"
+	mtl-type = "flat"
+	reflectance="0.8"
+	/>
+
+
+	<box
+	p0 = "0 0 0"
+	p1 = "1 0 0"
+	p2 = "0 1 0"
+	p3 = "0 0 -1"
+	mtl-diffuse="0.9 0.9 0.9"
+	mtl-ambient="0.3 0.3 0.3"
+	/>
+
+	<pyramid
+	p0 = "0 1 0"
+	p1 = "1 1 0"
+	p2 = "0 1 -1"
+	p3 = "0.5 1.5 -0.5"
+	mtl-diffuse="0.7 0 0"
+	/>
+
+
+	<pyramid
+	p0 = "1 1 -1"
+	p2 = "1 1 0"
+	p1 = "0 1 -1"
+	p3 = "0.5 1.5 -0.5"
+	mtl-diffuse="0.7 0 0"
+	/>
+
+
+	<rectangle 
+	p0 = "-10 0 10"
+	p1 = "10 0 10"
+	p2 = "-10 0 -10"
+	mtl-type = "checkers"
+	checkers-size="0.05"
+	checkers-diffuse1="0.4 1 0.6"
+	checkers-diffuse2="0.6 1 0.4"
+	/>
+
+
+
+
+	<light-point 
+	pos="2 4 2"
+	color="1 1 1"
+	/>
+
+</scene>
+
+
+

@@ -1,0 +1,284 @@
+<scene 
+	background-col="0.3 0.5 0.74" 
+	ambient-light="1 1 1" 
+	super-samp-width = "1"
+>
+
+	<camera
+	eye="0 10 14"
+	direction="0 -15 -15"
+	screen-width="2"
+	screen-dist="1"
+	up-direction="0 1 0"
+	/>
+
+<box
+	p0 = "-9 0.5 9"
+	p1 = "-8 0.5 9"
+	p2 = "-9 0.5 10"
+	p3 = "-9 -0.5 9"
+	mtl-diffuse="0.2 0.2 0.6"
+
+	/>
+	
+	<box
+	p0 = "-9 0.5 6"
+	p1 = "-8 0.5 6"
+	p2 = "-9 0.5 5"
+	p3 = "-9 -0.5 6"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+	
+	<box
+	p0 = "-7 0.5 7"
+	p1 = "-6 0.5 7"
+	p2 = "-7 0.5 8"
+	p3 = "-7 -0.5 7"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+	
+	<box
+	p0 = "-5 0.5 6"
+	p1 = "-4 0.5 6"
+	p2 = "-5 0.5 5"
+	p3 = "-5 -0.5 6"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+	
+	<box
+	p0 = "-5 0.5 9"
+	p1 = "-4 0.5 9"
+	p2 = "-5 0.5 10"
+	p3 = "-5 -0.5 9"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+	
+	<box
+	p0 = "-3 0.5 7"
+	p1 = "-2 0.5 7"
+	p2 = "-3 0.5 8"
+	p3 = "-3 -0.5 7"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+	
+		<box
+	p0 = "0.5 0.5 7"
+	p1 = "1.5 0.5 7"
+	p2 = "0.5 0.5 8"
+	p3 = "0.5 -0.5 7"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+	
+		<box
+	p0 = "4 0.5 7"
+	p1 = "5 0.5 7"
+	p2 = "4 0.5 8"
+	p3 = "4 -0.5 7"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+
+ <box
+ p0 = "8 0.5 7"
+ p1 = "9 0.5 7"
+ p2 = "8 0.5 8"
+ p3 = "8 -0.5 7"
+ mtl-diffuse="0.2 0.2 0.6"
+
+ />
+	
+		<box
+	p0 = "-1.5 0.5 6"
+	p1 = "-0.5 0.5 6"
+	p2 = "-1.5 0.5 5"
+	p3 = "-1.5 -0.5 6"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+	
+		<box
+	p0 = "6 0.5 6"
+	p1 = "7 0.5 6"
+	p2 = "6 0.5 5"
+	p3 = "6 -0.5 6"
+	mtl-diffuse="0.2 0.2 0.6"
+
+	/>
+	
+		<box
+	p0 = "2.3 0.5 6"
+	p1 = "3.3 0.5 6"
+	p2 = "2.3 0.5 5"
+	p3 = "2.3 -0.5 6"
+	mtl-diffuse="0.2 0.2 0.6"
+	
+	/>
+	
+ <box
+ p0 = "6 0.5 9"
+ p1 = "7 0.5 9"
+ p2 = "6 0.5 10"
+ p3 = "6 -0.5 9"
+ mtl-diffuse="0.2 0.2 0.6"
+ 
+ />
+ 
+ <box
+ p0 = "-1.5 0.5 9"
+ p1 = "-0.5 0.5 9"
+ p2 = "-1.5 0.5 10"
+ p3 = "-1.5 -0.5 9"
+ mtl-diffuse="0.2 0.2 0.6"
+ 
+ />
+
+<box
+ p0 = "2.3 0.5 9"
+ p1 = "3.3 0.5 9"
+ p2 = "2.3 0.5 10"
+ p3 = "2.3 -0.5 9"
+ mtl-diffuse="0.2 0.2 0.6"
+
+ />
+	
+	
+
+	<sphere 
+ center="8.5 0 -8" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+ <sphere 
+ center="8.5 0 -4" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+
+<sphere 
+ center="6.8 0 -6" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+<sphere 
+ center="3 0 -6" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+<sphere 
+ center="-1 0 -6" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+<sphere 
+ center="-4.8 0 -6" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+<sphere 
+ center="-8.5 0 -6" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+ <sphere 
+ center="5 0 -8" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+ <sphere 
+ center="1 0 -8" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+ <sphere 
+ center="-3 0 -8" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+ <sphere 
+ center="-6.8 0 -8" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+<sphere 
+ center="5 0 -4" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+ <sphere 
+ center="1 0 -4" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+ <sphere 
+ center="-3 0 -4" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+ <sphere 
+ center="-6.8 0 -4" 
+ radius="0.5"
+ mtl-diffuse="0.8 0.4 0"
+ mtl-ambient="0.2 0.2 0.2"
+ />
+
+	<rectangle 
+	p0 = "-10 -1 10"
+	p1 = "10 -1 10"
+	p2 = "-10 -1 -10"
+	mtl-type = "checkers"
+	checkers-size="0.1"
+	mtl-diffuse1="0.5 0.5 0"
+	mtl-diffuse2="0 0.5 0.5"
+	/>
+
+
+	<light-point 
+	pos="0 10 -7"
+	color="0.5 0.5 0.5"
+	attenuation = "1 0 0 "
+	/>
+	
+	<light-point 
+	pos="0 5 15"
+	color="1 1  1"
+	/>
+
+
+</scene>
+
+
+

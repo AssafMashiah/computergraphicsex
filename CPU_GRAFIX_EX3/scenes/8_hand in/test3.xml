@@ -1,0 +1,69 @@
+<scene 
+	background-col="0.3 0.5 0.74" 
+	ambient-light="1 1 1"
+  super-samp-width="2"
+  max-recursion-level = "15"
+>
+
+	<camera
+	eye="-1 5 -3"
+	direction="0.3 -1 0.9"
+	screen-width="2"
+	screen-dist="1"
+	up-direction="0 1 0"
+	/>
+
+  <pyramid
+	p0 = "-1 0 0"
+	p1 = "1 0 0"
+	p2 = "0 0 -1"
+	p3 = "0 0.5 -0.5"
+	mtl-diffuse="0.5 0 0"
+  mtl-ambient="0.4 0.3 0.2"
+	/>
+
+  <box
+	p0 = "1 0 0"
+	p1 = "2 0 0"
+	p2 = "1 1 0"
+	p3 = "1 0 -1"
+	mtl-diffuse="0.9 0.9 0.9"
+	mtl-ambient="0.3 0.3 0.3"
+  reflectance = "0.7"
+	/>
+  
+  <sphere
+	center="-1 0 -1"
+	radius="0.5"
+  mtl-diffuse="0 1 0"
+	mtl-ambient="0 0 0"
+	reflectance = "0.5"
+	/>
+
+	<rectangle 
+	p0 = "-10 -0.5 10"
+	p1 = "10 -0.5 10"
+	p2 = "-10 -0.5 -10"
+	mtl-type = "checkers"
+	checkers-size="0.025"
+	checkers-diffuse1="1 0 1"
+	checkers-diffuse2="1 0.7 0"
+	/>
+
+	<triangle 
+	p0 = "10 -0.5 0.5"
+	p1 = "-10 -0.5 0.5"
+	p2 = "0 9.5 0.5"
+	reflectance = "0.5"
+	mtl-diffuse="0 0 0"
+	/>
+
+	<light-point 
+	pos="0 3 0"
+	color="1 1 1"
+	/>
+
+</scene>
+
+
+

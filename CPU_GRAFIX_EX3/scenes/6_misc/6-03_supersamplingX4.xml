@@ -1,0 +1,53 @@
+<scene 
+	background-col="0.3 0.5 0.74" 
+	ambient-light="1 1 1" 
+	background-tex = "RollingHills.jpg"
+	super-samp-width="4"
+>
+
+	<camera
+	eye="0 0 0"
+	direction="0 0 -1"
+	screen-width="2"
+	screen-dist="1"
+	up-direction="0 1 0"
+	/>
+
+
+	<rectangle 
+	p0 = "-1 -1 -2"
+	p1 = "0  -1 -4"
+	p2 = "-1 1 -2"
+	mtl-type = "checkers"
+	checkers-size="0.05"
+	/>
+
+	<rectangle 
+	p0 = "1 -1 -2"
+	p2 = "0 -1 -4"
+	p1 = "1 1 -2"
+	mtl-type = "checkers"
+	checkers-size="0.25"
+	checkers-diffuse1="1 0 0"
+	checkers-diffuse2="0 0 1"
+	/>
+
+	<rectangle 
+	p0 = "-10 -1 10"
+	p1 = "10 -1 10"
+	p2 = "-10 -1 -10"
+	mtl-type = "checkers"
+	checkers-size="0.0025"
+	checkers-diffuse1="0 1 1"
+	checkers-diffuse2="1 1 0"
+	/>
+
+	<light-point 
+	pos="1 0 0"
+	color="1 1 1"
+	/>
+
+</scene>
+
+
+

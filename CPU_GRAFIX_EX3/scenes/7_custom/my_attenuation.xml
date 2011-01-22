@@ -1,0 +1,92 @@
+<scene 
+	background-col="0.3 0.5 0.74" 
+	ambient-light="1 1 1" 
+>
+
+	<camera
+	eye="0 13 0.1"
+	look-at="0 0 0"
+	screen-width="2"
+	screen-dist="1"
+	up-direction="0 1 0"
+	/>
+
+	<sphere 
+	center="0 0 0"	
+	radius="1"
+	mtl-diffuse = "1 0 0" 
+	/>
+
+	<sphere 
+	center="-2 0 0"	
+	radius="1"
+	mtl-diffuse = "0.9 0.5 0" 
+	/>
+
+	<sphere 
+	center="-4 0 0"	
+	radius="1"
+	mtl-diffuse = "0 1 1" 
+	/>
+
+	<sphere 
+	center="4 0 0"	
+	radius="1"
+	mtl-diffuse = "0 1 1" 
+	/>
+
+	<sphere 
+	center="2 0 0"	
+	radius="1"
+	mtl-diffuse = "0.9 0.5 0" 
+	/>
+	<sphere 
+	center="6 0 0"	
+	radius="1"
+	mtl-diffuse = "0 1 1" 
+	/>
+
+	<sphere 
+	center="8 0 0"	
+	radius="1"
+	mtl-diffuse = "0 1 1" 
+	/>
+
+	<sphere 
+	center="10 0 0"	
+	radius="1"
+	mtl-diffuse = "0 1 1" 
+	/>
+	<sphere 
+	center="-6 0 0"	
+	radius="1"
+	mtl-diffuse = "0 1 1" 
+	/>
+
+	<sphere 
+	center="-8 0 0"	
+	radius="1"
+	mtl-diffuse = "0 1 1" 
+	/>
+
+	<sphere 
+	center="-10 0 0"	
+	radius="1"
+	mtl-diffuse = "0 1 1" 
+	/>
+	<rectangle 
+	p0 = "-20 -0.5 20"
+	p1 = "20 -0.5 20"
+	p2 = "-20 -0.5 -20"
+	/>
+
+	<light-point 
+	pos="0 4 0"
+	attenuation="2 0.1 0.2"
+	color="1 1 1"
+	/>
+
+</scene>
+
+
+
