@@ -10,8 +10,8 @@ import java.util.Scanner;
  */
 public class Vec {
 	
-	private static final int MINUS_ONE = -1;
-	private static final int ZERO = 0;
+	protected static final int MINUS_ONE = -1;
+	protected static final int ZERO = 0;
 
 	// ============ BEGIN NEW STUFF ===============
 	public Vec(String v) {
@@ -125,7 +125,7 @@ public class Vec {
 	}
 
 	/**
-	 * Muliplies vector with scalar. v := s*v
+	 * Multiplies vector with scalar. v := s*v
 	 * 
 	 * @param s
 	 *            Scalar
@@ -363,7 +363,7 @@ public class Vec {
 	 * @return the String representation
 	 */
 	public String toString() {
-		return "(" + this.x + ", " + this.y + ", " + this.z + ")";
+		return String.format("(d%, d%, d%)", this.x, this.y, this.z);
 	}
 
 	@Override

@@ -270,6 +270,11 @@ public class Scene implements IInitable {
 			box.init(attributes);
 			surfaces.add(box);
 		}
+		if(name == "cylindar"){
+			Surface cylinder = new Cylinder();
+			cylinder.init(attributes);
+			surfaces.add(cylinder);
+		}
 	}
 
 	/**
