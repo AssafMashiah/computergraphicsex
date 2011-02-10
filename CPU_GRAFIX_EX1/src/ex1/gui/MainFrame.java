@@ -1,6 +1,4 @@
 package ex1.gui;
-
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -12,9 +10,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -22,17 +18,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JSlider;
 import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import ex1.model.GrayscaleMethod;
-import ex1.model.SeamCarver;
+import ex1.model.BiliteralSmoother;
 
 
 /**
@@ -44,30 +33,29 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	// Custom SWING component to display the image
-	private ImagePanel imagePanel;
+	private ImagePanel m_ImagePanel;
 	
 	// Slider SWING component for selecting a number from a given range. 
 	// Used for controlling scaling size
-	private JSlider slider;	
 	
-	protected ImageFrame grayscaleFrame;
+	protected ImageFrame m_GrayscaleFrame;
 	
-	protected ImageFrame edgeFrame; 
+	protected ImageFrame m_EdgeFrame; 
 	
 	// Image received as input
-	private BufferedImage rawImage;
+	private BufferedImage m_RawImage;
 	
 	// The main algorithm object
-	private SeamCarver seamCarver;
+	private BiliteralSmoother m_biliteralSmoother;
 	
 	// Message to appear in About dialog. 
-	private String aboutMessage;
+	private String m_aboutMessage;
 
-	private boolean isNewImage;
+	private boolean m_IsNewImage;
 	
 	// Model parameters
-	private GrayscaleMethod grayscaleMethod;
-	private boolean isRealtime;
+	//private GrayscaleMethod grayscaleMethod;
+	private boolean smooth;
 	
 	/**
 	 * Create Frame GUI
@@ -79,30 +67,11 @@ public class MainFrame extends JFrame {
 		setNativeLookAndFeel();
 		
 		// Create UI components
-		imagePanel = new ImagePanel();		
-		slider = new JSlider(SwingConstants.HORIZONTAL);
-		slider.setPaintLabels(true);
-		slider.setPaintTicks(true);
-		slider.setMajorTickSpacing(50);
-		slider.setMaximum(100);
-		slider.setValue(100);
-		slider.addChangeListener(new ChangeListener() {			
-			public void stateChanged(ChangeEvent e) {		
-				if(!slider.isEnabled())
-					return;
-				
-				if(
-						(slider.getValueIsAdjusting() && isRealtime) || 
-						(!slider.getValueIsAdjusting())
-						)
-					resizeImage((slider.getValue()));
-			}
-		});	
+		m_ImagePanel = new ImagePanel();		
 		
 		// Add UI components
 		this.getContentPane().setLayout(new BorderLayout());	
-		this.getContentPane().add(imagePanel,BorderLayout.CENTER);
-		this.getContentPane().add(slider,BorderLayout.SOUTH);
+		this.getContentPane().add(m_ImagePanel,BorderLayout.CENTER);
 		
 		// Handle window events 
 	    this.addWindowListener(new WindowAdapter() {		
@@ -114,7 +83,7 @@ public class MainFrame extends JFrame {
 	    // Add top menu
 	    JMenuBar menuBar = new JMenuBar();	 
 	    menuBar.add(createFileMenu());
-	    menuBar.add(createAlgorithmMenu());
+	    menuBar.add(createActionMenu());
 	    menuBar.add(createWindowMenu());	    	    
 	    menuBar.add(createHelpMenu());
 	    this.setJMenuBar(menuBar);
@@ -123,12 +92,12 @@ public class MainFrame extends JFrame {
 		this.pack();
 	
 		// Create display frames
-		grayscaleFrame = new ImageFrame("Grayscale");
-		edgeFrame = new ImageFrame("Edges");
+		m_GrayscaleFrame = new ImageFrame("Grayscale");
+		m_EdgeFrame = new ImageFrame("Edges");
 
 		// Init model
-		this.grayscaleMethod = GrayscaleMethod.average;
-		this.seamCarver = new SeamCarver();
+		//this.grayscaleMethod = GrayscaleMethod.OneTime;
+		this.m_biliteralSmoother = new BiliteralSmoother();
 	}
 
 	/**
@@ -165,7 +134,7 @@ public class MainFrame extends JFrame {
 	}
 
 	protected JMenu createWindowMenu() {
-	    JMenu viewMenu = new JMenu("Window");
+	    JMenu viewMenu = new JMenu("TestWindow");
 	    viewMenu.setMnemonic(KeyEvent.VK_W);
 		
 		JCheckBoxMenuItem grayscaleItem = new JCheckBoxMenuItem("Grayscale");
@@ -176,7 +145,7 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				JCheckBoxMenuItem chk = (JCheckBoxMenuItem) e.getSource();
 				chk.setSelected(chk.isSelected());
-				grayscaleFrame.setVisible(chk.isSelected());
+				m_GrayscaleFrame.setVisible(chk.isSelected());
 			}
 		});
 	    
@@ -188,9 +157,9 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				JCheckBoxMenuItem chk = (JCheckBoxMenuItem) e.getSource();
 				chk.setSelected(chk.isSelected());
-				edgeFrame.setVisible(chk.isSelected());
+				m_EdgeFrame.setVisible(chk.isSelected());
 				if(chk.isSelected())
-					edgeFrame.showImage(seamCarver.getEdgeImage());
+					m_EdgeFrame.showImage(m_biliteralSmoother.getEdgeImage());
 			}
 		});
 	    
@@ -201,47 +170,31 @@ public class MainFrame extends JFrame {
 	 * Creates the menu which handles the scaling operations
 	 * @return An initialized menu
 	 */
-	protected JMenu createAlgorithmMenu() {
-		JMenu menu = new JMenu("Algorithm");
-		menu.setMnemonic(KeyEvent.VK_A);
+	protected JMenu createActionMenu() {
+		JMenu menu = new JMenu("Action");
+		menu.setMnemonic(KeyEvent.VK_A);		
 		
-		ButtonGroup group = new ButtonGroup();
-		
-		ActionListener grayscaleChanged = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				grayscaleMethod = GrayscaleMethod.valueOf(e.getActionCommand());
-				resetModel();
-			}
-		}; 	
-
-		JMenu grayscaleMenu = new JMenu("rgb2gray");
-		grayscaleMenu.setMnemonic(KeyEvent.VK_G);
-		menu.add(grayscaleMenu);		
-		
-		boolean isFirst = true;
-		for(GrayscaleMethod method:GrayscaleMethod.values()) {
-
-			JRadioButtonMenuItem grayscaleItem = new JRadioButtonMenuItem();
-			grayscaleItem.setText(method.toString());
-			grayscaleItem.setActionCommand(method.toString());							
-			grayscaleItem.setSelected(isFirst);
-			grayscaleItem.addActionListener(grayscaleChanged);
-			group.add(grayscaleItem);
-			grayscaleMenu.add(grayscaleItem);			
-			
-			isFirst = false;			
-		}
-		
-		final JCheckBoxMenuItem chkRealtime = new JCheckBoxMenuItem();
-		chkRealtime.setText("Real-time");
-		chkRealtime.addActionListener(new ActionListener() {
+		final JMenuItem chkSmooth = new JMenuItem();
+		chkSmooth.setText("Smooth");
+		chkSmooth.addActionListener(new ActionListener() {
 					
 			public void actionPerformed(ActionEvent arg0) {
-				isRealtime = chkRealtime.isSelected();
+				smooth = chkSmooth.isSelected();
 				resetModel();				
 			}
 		});
-		menu.add(chkRealtime);		
+		menu.add(chkSmooth);	
+		
+		final JMenuItem chkAddEdges = new JMenuItem();
+		chkAddEdges.setText("Add Edges");
+		chkAddEdges.addActionListener(new ActionListener() {
+					
+			public void actionPerformed(ActionEvent arg0) {
+				smooth = chkAddEdges.isSelected();
+				resetModel();				
+			}
+		});
+		menu.add(chkAddEdges);		
 		
 		return menu;
 	}
@@ -275,7 +228,7 @@ public class MainFrame extends JFrame {
 	 * @param aboutMessage A message to appear in the about dialog
 	 */
 	public void initialize(BufferedImage img, String aboutMessage) {		
-		this.aboutMessage = aboutMessage;
+		this.m_aboutMessage = aboutMessage;
 		this.setRawImage(img);
 		resetModel();		
 	}
@@ -287,56 +240,30 @@ public class MainFrame extends JFrame {
 	 */	
 	protected void resetModel() {
 		
-		if(rawImage != null) {
+		if(m_RawImage != null) {
 			// This is a heavy computation that may take a while (when isRealtime is true)
-			seamCarver.init(rawImage,isRealtime,grayscaleMethod);
+			m_biliteralSmoother.init(m_RawImage,smooth); //,grayscaleMethod);
 			
-			slider.setEnabled(false);
-			slider.setMaximum(rawImage.getWidth());
-			slider.setValue(rawImage.getWidth()); 		
-			slider.setEnabled(true);
-			
-			grayscaleFrame.showImage(seamCarver.getGrayscaleImage());
+			m_GrayscaleFrame.showImage(m_biliteralSmoother.getGrayscaleImage());
 
-			imagePanel.setImage(rawImage);
-			imagePanel.repaint();		
-			
-			// Should display original images
-			//resizeImage(rawImage.getWidth());
+			m_ImagePanel.setImage(m_RawImage);
+			m_ImagePanel.repaint();		
 		}
 		
-		if(isNewImage) {
+		if(m_IsNewImage) {
 			this.pack();			
 			updateScreenPosition();
-			isNewImage = false;
+			m_IsNewImage = false;
 		}
 	}
 			
-	/**
-	 * Calls the re-scaling algorithm to resize the image and display it
-	 * @param targetWidth
-	 */
-	protected void resizeImage(int targetWidth) {
-		if(rawImage == null || seamCarver == null)
-			return;
-		
-		seamCarver.resize(targetWidth);
-		
-		if(edgeFrame.isVisible())
-			edgeFrame.showImage(seamCarver.getEdgeImage());
-		
-		imagePanel.setImage(seamCarver.getResizedImage());
-		imagePanel.repaint();		
-		System.out.println("Rescale: " + targetWidth);
-	}
-
 	/**
 	 * Sets raw image and update scaler about new width
 	 * @param rawImage
 	 */
 	protected void setRawImage(BufferedImage rawImage) {
-		this.rawImage = rawImage;
-		isNewImage = true;
+		this.m_RawImage = rawImage;
+		m_IsNewImage = true;
 	}
 	
 	/**
@@ -381,7 +308,7 @@ public class MainFrame extends JFrame {
 		
 		if(file != null) {			
 			try {
-				ImageIO.write(this.imagePanel.getImage(), "png", file);
+				ImageIO.write(this.m_ImagePanel.getImage(), "png", file);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -392,7 +319,7 @@ public class MainFrame extends JFrame {
 	 * Shows the about dialog
 	 */
 	protected void showHelpAboutDialog() {
-		JOptionPane.showMessageDialog(this, aboutMessage, "About", 
+		JOptionPane.showMessageDialog(this, m_aboutMessage, "About", 
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 	
@@ -408,11 +335,11 @@ public class MainFrame extends JFrame {
           this.setLocation(screenSize.width/2 - (labelSize.width/2),
                       screenSize.height/2 - (labelSize.height/2));
 
-          this.edgeFrame.setImageSize(this.imagePanel.getPreferredSize());
-          this.grayscaleFrame.setImageSize(this.imagePanel.getSize());
+          this.m_EdgeFrame.setImageSize(this.m_ImagePanel.getPreferredSize());
+          this.m_GrayscaleFrame.setImageSize(this.m_ImagePanel.getSize());
           
-          this.edgeFrame.setLocation(this.getX()-this.getWidth(), this.getY()+this.getContentPane().getY());
-          this.grayscaleFrame.setLocation(this.getX()+this.getWidth(), this.getY()+this.getContentPane().getY());
+          this.m_EdgeFrame.setLocation(this.getX()-this.getWidth(), this.getY()+this.getContentPane().getY());
+          this.m_GrayscaleFrame.setLocation(this.getX()+this.getWidth(), this.getY()+this.getContentPane().getY());
 	}
 
 	/**
@@ -427,6 +354,6 @@ public class MainFrame extends JFrame {
 	}
 
 	protected BufferedImage getRawImage() {
-		return rawImage;
+		return m_RawImage;
 	}
 }

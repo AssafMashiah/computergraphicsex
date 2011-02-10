@@ -10,11 +10,11 @@ import java.awt.image.BufferedImage;
 public class ImageProcessor {
 
 	private static final double MAX_COLOR_SCALE = 255.0;
-	private static double[][] deriveKernel = { { 1, 0, -1 }, { 2, 0, -2 },
+	private static double[][] deriveKernel = { { 1, 0, -1 }, { 2, 0, -2 },//TODO: Remove later
 			{ 1, 0, -1 } };
-	private static double[][] deriveKernel2 = { { +1, +2, +1 }, { 0, 0, 0 },
+	private static double[][] deriveKernel2 = { { +1, +2, +1 }, { 0, 0, 0 },//TODO: Remove later
 			{ -1, -2, -1 } };
-	private static double[][] gaussianBlur = {
+	private static double[][] gaussianBlur = {//TODO: Remove later
 			{ 1 / 121., 2 / 121., 3 / 121., 2 / 121., 1 / 121. },
 			{ 2 / 121., 7 / 121., 11 / 121., 7 / 121., 2 / 121. },
 			{ 3 / 121., 11 / 121., 17 / 121., 11 / 121., 3 / 121. },
@@ -79,8 +79,8 @@ public class ImageProcessor {
 	 *            RGB buffered image (values [0..255])
 	 * @return 2D array with unbounded values
 	 */
-	public static double[][] rgb2gray(BufferedImage img,
-			GrayscaleMethod grayscaleMethod) {
+	public static double[][] rgb2gray(BufferedImage img) //, GrayscaleMethod grayscaleMethod) {
+	{
 		int height = img.getHeight();
 		int width = img.getWidth();
 		double[][] result = new double[height][width];
@@ -91,27 +91,9 @@ public class ImageProcessor {
 				int blue = tempColor.getBlue();
 				int green = tempColor.getGreen();
 				int red = tempColor.getRed();
-				switch (grayscaleMethod) {
-				case average:
-					// average between all colorful values
-					result[i][j] = (blue + green + red)
-							/ (3.0 * MAX_COLOR_SCALE);
-					break;
-				case min:
-					// min between all colorful values
-					result[i][j] = (Math.min(Math.min(blue, red), green))
-							/ MAX_COLOR_SCALE;
-					break;
-				case max:
-					// max between all colorful values
-					result[i][j] = Math.max(Math.max(blue, red), green)
-							/ MAX_COLOR_SCALE;
-					break;
-				case perceptual:
-					// as given in class
-					result[i][j] = (0.2989 * red + 0.5870 * green + 0.1140 * blue)
-							/ MAX_COLOR_SCALE;
-				}
+				// as given in class
+				result[i][j] = (0.2989 * red + 0.5870 * green + 0.1140 * blue)
+								/ MAX_COLOR_SCALE;
 			}
 		}
 		return result;
@@ -169,7 +151,7 @@ public class ImageProcessor {
 	}
 
 	/**
-	 * Given a grayscale image should perform the Sobel edge detection algorithm
+	 * Given a grayscale image should perform the edge detection algorithm
 	 * 
 	 * @param I
 	 *            Input grayscale intensity image

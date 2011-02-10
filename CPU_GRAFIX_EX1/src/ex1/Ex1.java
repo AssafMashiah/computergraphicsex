@@ -17,7 +17,7 @@ public class Ex1 {
 	 */
 	private static BufferedImage getTestImage(String[] args) {
 
-		if (args.length > 1) {
+		if (args.length < 1) {
 			throw new IllegalArgumentException("Usage : Ex1 <image path>");
 		}
 		if (args.length == 1) {
@@ -34,11 +34,8 @@ public class Ex1 {
 	}
 
 	private static String getAboutMessage() {
-		return "Scaling GUI for exercise1\nAdd an image from your file system.\n " +
-				"Use \"Ctrl + E\" to get the edge window.\n Use \"Ctrl + G\" to " +
-				"get the gray scale image window.\n Drag the bar and watch the image " +
-				"rescals using the seam carving. for real-time preformace pick " +
-				"'real-time' from the 'Algorithem' menu.\n Enjoy\t\t Omer Amsel and Assaf Mashiah";
+		//TODO: add your statment
+		return "???";
 	}
 
 	/**

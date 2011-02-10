@@ -7,14 +7,14 @@ import java.awt.image.BufferedImage;
  * method
  * 
  */
-public class SeamCarver {
+public class BiliteralSmoother {
 	private static final int BLACK_COLOR = 0;
-	private BufferedImage origImage;
-	private BufferedImage curImage;
-	private BufferedImage origSobel;
-	private BufferedImage curSobel;
+	private BufferedImage m_OrigImage;
+	private BufferedImage m_CurImage;
+	private BufferedImage m_OrigSobel;
+	private BufferedImage m_CurSobel;
 
-	private GrayscaleMethod grayScaleType;
+//	private GrayscaleMethod grayScaleType;
 
 	private double[][] grayImage;
 	private double[][] edgeMatrix;
@@ -32,21 +32,17 @@ public class SeamCarver {
 	 * @param grayscaleMethod
 	 *            Which method to use for rgb2gray conversion
 	 */
-	public void init(BufferedImage img, boolean isRealtime,
-			GrayscaleMethod grayscaleMethod) {
-		/*
-		 * We needed to use copy here , when opening another file after changing
-		 * a different image. it created an aliasing bug, which cause a
-		 * NullPointerException
-		 */
+	public void init(BufferedImage img, boolean isRealtime)
+	{
+//	, GrayscaleMethod grayscaleMethod) {
 
-		curImage = copyImage(img);
-		origImage = copyImage(img);
+		m_CurImage = copyImage(img);
+		m_OrigImage = copyImage(img);
 
-		grayScaleType = grayscaleMethod;
+//		grayScaleType = grayscaleMethod;
 
 		// We use this private member to save redundant calculations
-		grayImage = ImageProcessor.rgb2gray(curImage, grayScaleType);
+		grayImage = ImageProcessor.rgb2gray(m_CurImage);//, grayScaleType);
 
 		// This private member helps us with calculation in the dynamic
 		// programming
@@ -54,9 +50,9 @@ public class SeamCarver {
 
 		// As with curImage and origImage we want to change the Sobel matrix
 		// accordingly without having to call the Sobel edge detection too much.
-		origSobel = ImageProcessor.gray2rgb(ImageProcessor
+		m_OrigSobel = ImageProcessor.gray2rgb(ImageProcessor
 				.sobelEdgeDetect(grayImage));
-		curSobel = ImageProcessor.gray2rgb(ImageProcessor
+		m_CurSobel = ImageProcessor.gray2rgb(ImageProcessor
 				.sobelEdgeDetect(grayImage));
 
 		// The index matrix contains the indexes in proportion to the original
@@ -69,7 +65,7 @@ public class SeamCarver {
 		seamIndex = new int[img.getHeight()][img.getWidth()];
 
 		// Because of the pre-processing we need to simulate every seam removal
-		// untill no more can be done
+		// Until no more can be done
 		for (int i = 0; i < img.getWidth(); i++) {
 			dynamicProgramming(i);
 		}
@@ -226,8 +222,8 @@ public class SeamCarver {
 	 *            width.
 	 */
 	public void resize(int targetWidth) {
-		int rows = origImage.getHeight();
-		int columns = origImage.getWidth();
+		int rows = m_OrigImage.getHeight();
+		int columns = m_OrigImage.getWidth();
 		int pixCount;
 		int validPix = columns - targetWidth;
 		for (int row = 0; row < rows; row++) {
@@ -236,16 +232,16 @@ public class SeamCarver {
 			// saving relevant data from the original image to the current used image
 			for (int col = 0; col < columns; col++) {
 				if (seamIndex[row][col] >= validPix) {
-					curImage.setRGB(pixCount, row, origImage.getRGB(col, row));
-					curSobel.setRGB(pixCount, row, origSobel.getRGB(col, row));
+					m_CurImage.setRGB(pixCount, row, m_OrigImage.getRGB(col, row));
+					m_CurSobel.setRGB(pixCount, row, m_OrigSobel.getRGB(col, row));
 					pixCount++;
 				}
 			}
 
 			// paints the rest of the unused pixels in black
 			for (int col = pixCount; col < columns; col++) {
-				curImage.setRGB(col, row, BLACK_COLOR);
-				curSobel.setRGB(col, row, BLACK_COLOR);
+				m_CurImage.setRGB(col, row, BLACK_COLOR);
+				m_CurSobel.setRGB(col, row, BLACK_COLOR);
 			}
 		}
 	}
@@ -268,7 +264,7 @@ public class SeamCarver {
 	 * @return Edge image
 	 */
 	public BufferedImage getEdgeImage() {
-		return curSobel;
+		return m_CurSobel;
 	}
 
 	/**
@@ -278,7 +274,7 @@ public class SeamCarver {
 	 * @return Resized image
 	 */
 	public BufferedImage getResizedImage() {
-		return curImage;
+		return m_CurImage;
 	}
 
 }
