@@ -12,39 +12,46 @@ import javax.swing.JPanel;
  * a repaint event. Unless invalidated otherwise, only after calling "repaint" will 
  * the new image appear. 
  * 
- * @author chen
+ * @author Assaf & Orr
  * 
  */
 public class ImagePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private BufferedImage image;
+	private BufferedImage m_Image;
 
-	public ImagePanel() {
+	public ImagePanel() 
+	{
 		super();
 		this.setDoubleBuffered(false);
 		this.setPreferredSize(new Dimension(320,240));
 	}
 
-	public BufferedImage getImage() {
-		return image;
+	public BufferedImage getImage() 
+	{
+		return m_Image;
 	}
 
 	/**
 	 * Overrides the JPanel's paint method to draw the image
 	 */
-	public void paint(Graphics g) {
-		g.drawImage(image, 0, 0, null);
+	public void paint(Graphics g) 
+	{
+		g.drawImage(m_Image, 0, 0, null);
 	}
 
 	/**
 	 * Sets the image to be displayed. Resizes panel to fit new image.
 	 * @param image Any BufferedImage
 	 */
-	public void setImage(BufferedImage image) {
-		if(image==null)
+	public void setImage(BufferedImage image) 
+	{
+		if(image == null)
+		{
 			return;
-		this.image = image;
+		}
+		
+		this.m_Image = image;
 		setSize(new Dimension(image.getWidth(), image.getHeight()));
 		setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
 	}
@@ -52,7 +59,8 @@ public class ImagePanel extends JPanel {
 	/**
 	 * Paint without cleaning the buffer
 	 */
-	public void update(Graphics g) {
+	public void update(Graphics g) 
+	{
 		paint(g);
 	}
 }

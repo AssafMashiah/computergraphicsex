@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 
 /**
  * Contains a few handy image processing routines
- * 
  */
 public class ImageProcessor {
 

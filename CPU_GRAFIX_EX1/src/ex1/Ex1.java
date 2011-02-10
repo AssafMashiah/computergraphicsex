@@ -8,24 +8,32 @@ import javax.imageio.ImageIO;
 
 import ex1.gui.MainFrame;
 
-public class Ex1 {
+public class Ex1 
+{
 
 	/**
 	 * Creates Loads image from filename passed as an argument
 	 * 
 	 * @return A BufferedImage
 	 */
-	private static BufferedImage getTestImage(String[] args) {
-
-		if (args.length < 1) {
+	private static BufferedImage getTestImage(String[] args) 
+	{
+		if (args.length < 1) 
+		{
 			throw new IllegalArgumentException("Usage : Ex1 <image path>");
 		}
-		if (args.length == 1) {
+		
+		if (args.length == 1) 
+		{
 			File file = new File(args[0]);
-			if (file != null) {
-				try {
+			if (file != null) 
+			{
+				try 
+				{
 					return ImageIO.read(file);
-				} catch (IOException e) {
+				} 
+				catch (IOException e) 
+				{
 					e.printStackTrace();
 				}
 			}
@@ -33,8 +41,9 @@ public class Ex1 {
 		return null;
 	}
 
-	private static String getAboutMessage() {
-		//TODO: add your statment
+	private static String getAboutMessage() 
+	{
+		//TODO: add your statement
 		return "???";
 	}
 
@@ -45,7 +54,8 @@ public class Ex1 {
 	 * @param args
 	 *            First argument expected filename (optional)
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	{
 		MainFrame frm = new MainFrame();
 		frm.initialize(getTestImage(args), getAboutMessage());
 		frm.setVisible(true);

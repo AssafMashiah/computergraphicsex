@@ -34,12 +34,8 @@ public class BiliteralSmoother {
 	 */
 	public void init(BufferedImage img, boolean isRealtime)
 	{
-//	, GrayscaleMethod grayscaleMethod) {
-
 		m_CurImage = copyImage(img);
 		m_OrigImage = copyImage(img);
-
-//		grayScaleType = grayscaleMethod;
 
 		// We use this private member to save redundant calculations
 		grayImage = ImageProcessor.rgb2gray(m_CurImage);//, grayScaleType);
