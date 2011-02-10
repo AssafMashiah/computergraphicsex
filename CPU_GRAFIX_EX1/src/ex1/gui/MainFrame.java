@@ -35,9 +35,6 @@ public class MainFrame extends JFrame {
 	// Custom SWING component to display the image
 	private ImagePanel m_ImagePanel;
 	
-	// Slider SWING component for selecting a number from a given range. 
-	// Used for controlling scaling size
-	
 	protected ImageFrame m_GrayscaleFrame;
 	
 	protected ImageFrame m_EdgeFrame; 
@@ -53,15 +50,14 @@ public class MainFrame extends JFrame {
 
 	private boolean m_IsNewImage;
 	
-	// Model parameters
-	//private GrayscaleMethod grayscaleMethod;
-	private boolean smooth;
+	//private boolean smooth;
 	
 	/**
 	 * Create Frame GUI
 	 *
 	 */
-	public MainFrame() {
+	public MainFrame()
+	{
 		super("Exercise1");
 
 		setNativeLookAndFeel();
@@ -74,8 +70,10 @@ public class MainFrame extends JFrame {
 		this.getContentPane().add(m_ImagePanel,BorderLayout.CENTER);
 		
 		// Handle window events 
-	    this.addWindowListener(new WindowAdapter() {		
-	        public void windowClosing(WindowEvent we){
+	    this.addWindowListener(new WindowAdapter()
+	    {		
+	        public void windowClosing(WindowEvent we)
+	        {
 	        	System.exit(1);
 	        }
 	      });
@@ -96,7 +94,6 @@ public class MainFrame extends JFrame {
 		m_EdgeFrame = new ImageFrame("Edges");
 
 		// Init model
-		//this.grayscaleMethod = GrayscaleMethod.OneTime;
 		this.m_biliteralSmoother = new BiliteralSmoother();
 	}
 
@@ -179,7 +176,7 @@ public class MainFrame extends JFrame {
 		chkSmooth.addActionListener(new ActionListener() {
 					
 			public void actionPerformed(ActionEvent arg0) {
-				smooth = chkSmooth.isSelected();
+				//smooth = chkSmooth.isSelected();
 				resetModel();				
 			}
 		});
@@ -187,14 +184,15 @@ public class MainFrame extends JFrame {
 		
 		final JMenuItem chkAddEdges = new JMenuItem();
 		chkAddEdges.setText("Add Edges");
-		chkAddEdges.addActionListener(new ActionListener() {
-					
-			public void actionPerformed(ActionEvent arg0) {
-				smooth = chkAddEdges.isSelected();
+		chkAddEdges.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				BiliteralSmoother.SetBiliteralKernel(m_RawImage, 1, 1);
 				resetModel();				
 			}
 		});
-		menu.add(chkAddEdges);		
+		menu.add(chkAddEdges);
 		
 		return menu;
 	}
@@ -238,19 +236,20 @@ public class MainFrame extends JFrame {
 	 * resets the slider.      
 	 *
 	 */	
-	protected void resetModel() {
-		
-		if(m_RawImage != null) {
-			// This is a heavy computation that may take a while (when isRealtime is true)
-			m_biliteralSmoother.init(m_RawImage,smooth); //,grayscaleMethod);
+	protected void resetModel()
+	{
+		if(m_RawImage != null)
+		{
+			m_biliteralSmoother.init(m_RawImage);
 			
 			m_GrayscaleFrame.showImage(m_biliteralSmoother.getGrayscaleImage());
 
 			m_ImagePanel.setImage(m_RawImage);
-			m_ImagePanel.repaint();		
+			m_ImagePanel.repaint();
 		}
 		
-		if(m_IsNewImage) {
+		if(m_IsNewImage) 
+		{
 			this.pack();			
 			updateScreenPosition();
 			m_IsNewImage = false;
@@ -261,7 +260,8 @@ public class MainFrame extends JFrame {
 	 * Sets raw image and update scaler about new width
 	 * @param rawImage
 	 */
-	protected void setRawImage(BufferedImage rawImage) {
+	protected void setRawImage(BufferedImage rawImage)
+	{
 		this.m_RawImage = rawImage;
 		m_IsNewImage = true;
 	}
@@ -272,7 +272,8 @@ public class MainFrame extends JFrame {
 	 * it as new input image and displays it.
 	 *
 	 */	
-	protected void showFileOpenDialog() {
+	protected void showFileOpenDialog()
+	{
 		JFileChooser fd = new JFileChooser();
 		
 		fd.setFileFilter(new FileNameExtensionFilter("Images", "png", "jpg", "bmp"));
@@ -280,14 +281,18 @@ public class MainFrame extends JFrame {
 		
 		File file = fd.getSelectedFile(); 
 		
-		if(file != null) {			
-			try {
+		if(file != null)
+		{			
+			try
+			{
 				// Create BufferedImage from file
 				setRawImage(ImageIO.read(file));
 				
 				resetModel();
 				
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -298,7 +303,8 @@ public class MainFrame extends JFrame {
 	 * other formats as well (jpg, bmp,...). Saves currently displayed image.
 	 *
 	 */
-	protected void showFileSaveDialog() {
+	protected void showFileSaveDialog()
+	{
 		JFileChooser fd = new JFileChooser();
 				
 		fd.setFileFilter(new FileNameExtensionFilter("png", "png"));
@@ -306,10 +312,14 @@ public class MainFrame extends JFrame {
 		
 		File file = fd.getSelectedFile(); 
 		
-		if(file != null) {			
-			try {
+		if(file != null)
+		{			
+			try
+			{
 				ImageIO.write(this.m_ImagePanel.getImage(), "png", file);
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -318,7 +328,8 @@ public class MainFrame extends JFrame {
 	/**
 	 * Shows the about dialog
 	 */
-	protected void showHelpAboutDialog() {
+	protected void showHelpAboutDialog()
+	{
 		JOptionPane.showMessageDialog(this, m_aboutMessage, "About", 
 				JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -326,8 +337,8 @@ public class MainFrame extends JFrame {
 	/**
 	 * Places the frame at the center of the screen
 	 */
-	protected void updateScreenPosition() {
-
+	protected void updateScreenPosition()
+	{
 		Dimension screenSize =
             Toolkit.getDefaultToolkit().getScreenSize();
 		
@@ -345,15 +356,20 @@ public class MainFrame extends JFrame {
 	/**
 	 * Tells Swing to paint GUI as if it is native (i.e. uses OS GUI style) 
 	 */
-	public static void setNativeLookAndFeel() {
-		try {
+	public static void setNativeLookAndFeel()
+	{
+		try
+		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			System.out.println("Error setting native LAF: " + e);
 		}
 	}
 
-	protected BufferedImage getRawImage() {
+	protected BufferedImage getRawImage()
+	{
 		return m_RawImage;
 	}
 }

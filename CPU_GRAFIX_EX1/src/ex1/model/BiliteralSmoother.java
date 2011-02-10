@@ -7,19 +7,13 @@ import java.awt.image.BufferedImage;
  * method
  * 
  */
-public class BiliteralSmoother {
-	private static final int BLACK_COLOR = 0;
+public class BiliteralSmoother
+{
 	private BufferedImage m_OrigImage;
 	private BufferedImage m_CurImage;
-	private BufferedImage m_OrigSobel;
 	private BufferedImage m_CurSobel;
 
-//	private GrayscaleMethod grayScaleType;
-
-	private double[][] grayImage;
-	private double[][] edgeMatrix;
-	private int[][] indexMatrix;
-	private int[][] seamIndex;
+	private double[][] m_GrayImage;
 
 	/**
 	 * Initializes the Seam Carving algorithm with the given parameters. Any old
@@ -27,44 +21,21 @@ public class BiliteralSmoother {
 	 * 
 	 * @param img
 	 *            The original RGB image the user selected
-	 * @param isRealtime
-	 *            To use the realtime algorithm or not?
 	 * @param grayscaleMethod
 	 *            Which method to use for rgb2gray conversion
 	 */
-	public void init(BufferedImage img, boolean isRealtime)
+	public void init(BufferedImage img)
 	{
 		m_CurImage = copyImage(img);
 		m_OrigImage = copyImage(img);
 
 		// We use this private member to save redundant calculations
-		grayImage = ImageProcessor.rgb2gray(m_CurImage);//, grayScaleType);
-
-		// This private member helps us with calculation in the dynamic
-		// programming
-		edgeMatrix = ImageProcessor.sobelEdgeDetect(grayImage);
+		m_GrayImage = ImageProcessor.rgb2gray(m_CurImage);
 
 		// As with curImage and origImage we want to change the Sobel matrix
 		// accordingly without having to call the Sobel edge detection too much.
-		m_OrigSobel = ImageProcessor.gray2rgb(ImageProcessor
-				.sobelEdgeDetect(grayImage));
-		m_CurSobel = ImageProcessor.gray2rgb(ImageProcessor
-				.sobelEdgeDetect(grayImage));
-
-		// The index matrix contains the indexes in proportion to the original
-		// image , it helps us draw the resized image.
-		indexMatrix = new int[img.getHeight()][img.getWidth()];
-		initIndexMatrix(indexMatrix);
-
-		// The seamIndex matrix helps us find the corresponding seams to
-		// 'delete' at each iteration
-		seamIndex = new int[img.getHeight()][img.getWidth()];
-
-		// Because of the pre-processing we need to simulate every seam removal
-		// Until no more can be done
-		for (int i = 0; i < img.getWidth(); i++) {
-			dynamicProgramming(i);
-		}
+		m_CurSobel = 
+			ImageProcessor.gray2rgb(ImageProcessor.sobelEdgeDetect(m_GrayImage));
 	}
 
 	/**
@@ -74,7 +45,8 @@ public class BiliteralSmoother {
 	 *            - the BufferedImage to copy
 	 * @return - a copied BufferedImage
 	 */
-	private BufferedImage copyImage(BufferedImage img) {
+	private BufferedImage copyImage(BufferedImage img) 
+	{
 		BufferedImage temp = new BufferedImage(img.getWidth(), img.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 		for (int col = 0; col < temp.getWidth(); col++) {
@@ -85,171 +57,58 @@ public class BiliteralSmoother {
 		return temp;
 	}
 
-	private void dynamicProgramming(int currentSeamNum) {
-		int rows = edgeMatrix.length;
-		int columns = edgeMatrix[0].length;
-		double[][] DPcalc = new double[rows][columns + 2];
-		int[] result = new int[rows];
-
-		// Copying the first line of the sobelEdge Matrix
-		for (int i = 1; i < columns; i++) {
-			DPcalc[0][i] = edgeMatrix[0][i - 1];
-		}
-
-		// Padding the matrix with 2 MAX_VALUE columns at both edges
-		for (int i = 0; i < rows; i++) {
-			DPcalc[i][0] = Double.MAX_VALUE;
-			DPcalc[i][columns + 1] = Double.MAX_VALUE;
-		}
-
-		// Calculating the DP
-		for (int i = 1; i < rows; i++) {
-			for (int j = 1; j < columns + 1; j++) {
-				DPcalc[i][j] = edgeMatrix[i][j - 1]
-						+ Math.min(Math.min(DPcalc[i - 1][j - 1],
-								DPcalc[i - 1][j]), DPcalc[i - 1][j + 1]);
+	public void Smoother(double[][] kernel, BufferedImage img)
+	{
+		double[][] image = new double[img.getWidth()][img.getHeight()];
+		for(int i = 0; i < img.getWidth() ; i++)
+		{
+			for (int j = 0; j < img.getHeight() ; j++)
+			{
+				image[i][j] = img.getRGB(i, j);
 			}
 		}
-
-		// Back Tracking and finding the seam
-		int xIndex = findMin(DPcalc[rows - 1]);
-		result[rows - 1] = xIndex - 1;
 		
-		// this will pick the right place to go to in the x axis
-		for (int i = rows - 2; i >= 0; i--) {
-			if ((DPcalc[i][xIndex - 1] < DPcalc[i][xIndex])
-					&& (DPcalc[i][xIndex - 1] < DPcalc[i][xIndex + 1])) {
-				xIndex -= 1;
-			} else {
-				if ((DPcalc[i][xIndex + 1] < DPcalc[i][xIndex])
-						&& (DPcalc[i][xIndex + 1] < DPcalc[i][xIndex - 1])) {
-					xIndex += 1;
-				}
-			}
-			result[i] = xIndex - 1;
-		}
-
-		/*
-		 * We update in the seamIndex matrix , the coordinates of the pixels
-		 * which we need to remove, in respect to the original image
-		 * coordinates.
-		 */
-		for (int i = 0; i < rows; i++) {
-			seamIndex[i][indexMatrix[i][result[i]]] = currentSeamNum;
-		}
-
-		/*
-		 * Now we delete 1 seam both from the SobelEdge matrix and from the
-		 * index matrix So next time we calculate the dynamic programming we do
-		 * it on a smaller picture.
-		 */
-
-		// new edge matrix
-		double[][] tempEdgeMatrix = new double[rows][columns - 1];
-
-		// new index Matrix
-		int[][] tempIndexMatrix = new int[rows][columns - 1];
-
-		for (int row = 0; row < rows; row++) {
-			// copying the values up to the seam itself (not including)
-			for (int col = 0; col < result[row]; col++) {
-				tempEdgeMatrix[row][col] = edgeMatrix[row][col];
-				tempIndexMatrix[row][col] = indexMatrix[row][col];
-			}
-
-			// copying the values from the seam to the end (not including)
-			for (int col = result[row] + 1; col < columns; col++) {
-				tempEdgeMatrix[row][col - 1] = edgeMatrix[row][col];
-				tempIndexMatrix[row][col - 1] = indexMatrix[row][col];
+		m_CurImage = ImageProcessor.BiliteralConvolve(image, kernel);
+	}
+	
+	
+	
+/////////////////////////////////////////////////////
+	
+	
+	
+	public static BufferedImage SetBiliteralKernel(BufferedImage img, int x, int y)
+	{
+		double[][] biliteralKernel = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
+		
+		int indexX = (x - 1) / 2;
+		int indexY = (y - 1) / 2;
+		
+		BufferedImage sub = img.getSubimage(indexX, indexY, ImageProcessor.gaussianBlur.length, ImageProcessor.gaussianBlur[0].length);
+		
+		for(int i = 0; i < ImageProcessor.gaussianBlur.length ; i++)
+		{
+			for(int j = 0 ; j < ImageProcessor.gaussianBlur[0].length ; j++)
+			{
+				biliteralKernel[i][j] = sub.getRGB(i, j);
 			}
 		}
-
-		// copying the pointers
-		indexMatrix = tempIndexMatrix;
-		edgeMatrix = tempEdgeMatrix;
-
+		
+		System.out.println("sadfasdfasdf");
+		return sub;
 	}
 
-	/***
-	 * Finding minimum value in an array , used to find the x coordinate of the
-	 * minimum value in the last line of the DP table
-	 * 
-	 * @param mat
-	 *            - list of numbers corresponding with the values of the DP of
-	 *            the image
-	 * @return
-	 */
-
-	private int findMin(double[] mat) {
-		int tempIndex = 0;
-		double tempMin = Double.MAX_VALUE;
-
-		// finds the minimum value
-		for (int i = 0; i < mat.length; i++) {
-			if (mat[i] < tempMin) {
-				tempMin = mat[i];
-				tempIndex = i;
-			}
-		}
-		return tempIndex;
-	}
-
-	/***
-	 * initializing the index values of the matrix
-	 * 
-	 * @param mat
-	 *            - index values 0 to image width
-	 */
-	private void initIndexMatrix(int[][] mat) {
-		for (int i = 0; i < mat.length; i++) {
-			for (int j = 0; j < mat[0].length; j++) {
-				mat[i][j] = j;
-			}
-		}
-
-	}
-
-	/**
-	 * Resizes the image to the given value. The result is later retrieved by
-	 * the GUI using getResizedImage.
-	 * 
-	 * @param targetWidth
-	 *            A target width to resize to. Not larger than original image's
-	 *            width.
-	 */
-	public void resize(int targetWidth) {
-		int rows = m_OrigImage.getHeight();
-		int columns = m_OrigImage.getWidth();
-		int pixCount;
-		int validPix = columns - targetWidth;
-		for (int row = 0; row < rows; row++) {
-			pixCount = 0;
-
-			// saving relevant data from the original image to the current used image
-			for (int col = 0; col < columns; col++) {
-				if (seamIndex[row][col] >= validPix) {
-					m_CurImage.setRGB(pixCount, row, m_OrigImage.getRGB(col, row));
-					m_CurSobel.setRGB(pixCount, row, m_OrigSobel.getRGB(col, row));
-					pixCount++;
-				}
-			}
-
-			// paints the rest of the unused pixels in black
-			for (int col = pixCount; col < columns; col++) {
-				m_CurImage.setRGB(col, row, BLACK_COLOR);
-				m_CurSobel.setRGB(col, row, BLACK_COLOR);
-			}
-		}
-	}
-
+//////////////////////////////////////////////////////////////////////////////////////	
+	
 	/**
 	 * Retrieves an image of the first step of the algorithm: The grayscale
 	 * image of the original RGB image.
 	 * 
 	 * @return Grayscale image
 	 */
-	public BufferedImage getGrayscaleImage() {
-		return ImageProcessor.gray2rgb(grayImage);
+	public BufferedImage getGrayscaleImage() 
+	{
+		return ImageProcessor.gray2rgb(m_GrayImage);
 	}
 
 	/**
@@ -259,7 +118,8 @@ public class BiliteralSmoother {
 	 * 
 	 * @return Edge image
 	 */
-	public BufferedImage getEdgeImage() {
+	public BufferedImage getEdgeImage() 
+	{
 		return m_CurSobel;
 	}
 
@@ -269,8 +129,8 @@ public class BiliteralSmoother {
 	 * 
 	 * @return Resized image
 	 */
-	public BufferedImage getResizedImage() {
+	public BufferedImage getImage() 
+	{
 		return m_CurImage;
 	}
-
 }

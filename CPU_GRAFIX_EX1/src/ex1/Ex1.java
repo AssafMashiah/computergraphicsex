@@ -18,12 +18,12 @@ public class Ex1
 	 */
 	private static BufferedImage getTestImage(String[] args) 
 	{
-		if (args.length < 1) 
+		if (args.length > 1) 
 		{
 			throw new IllegalArgumentException("Usage : Ex1 <image path>");
 		}
 		
-		if (args.length == 1) 
+		if (args.length > 0) 
 		{
 			File file = new File(args[0]);
 			if (file != null) 

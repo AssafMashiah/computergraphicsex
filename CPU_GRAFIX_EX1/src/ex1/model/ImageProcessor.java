@@ -3,17 +3,19 @@ package ex1.model;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import quicktime.sound.Sound;
+
 /**
  * Contains a few handy image processing routines
  */
 public class ImageProcessor {
 
-	private static final double MAX_COLOR_SCALE = 255.0;
-	private static double[][] deriveKernel = { { 1, 0, -1 }, { 2, 0, -2 },//TODO: Remove later
+	public static final double MAX_COLOR_SCALE = 255.0;
+	public static double[][] deriveKernel = { { 1, 0, -1 }, { 2, 0, -2 },//TODO: Remove later
 			{ 1, 0, -1 } };
-	private static double[][] deriveKernel2 = { { +1, +2, +1 }, { 0, 0, 0 },//TODO: Remove later
+	public static double[][] deriveKernel2 = { { +1, +2, +1 }, { 0, 0, 0 },//TODO: Remove later
 			{ -1, -2, -1 } };
-	private static double[][] gaussianBlur = {//TODO: Remove later
+	public static double[][] gaussianBlur = {//TODO: Remove later
 			{ 1 / 121., 2 / 121., 3 / 121., 2 / 121., 1 / 121. },
 			{ 2 / 121., 7 / 121., 11 / 121., 7 / 121., 2 / 121. },
 			{ 3 / 121., 11 / 121., 17 / 121., 11 / 121., 3 / 121. },
@@ -40,19 +42,34 @@ public class ImageProcessor {
 		int height = output[0].length - 1;
 
 		// The convolution process
-		for (int i = edgeSize; i < imageRows - edgeSize; i++) {
-			for (int j = edgeSize; j < imageCols - edgeSize; j++) {
-				for (int blockRow = edgeSize; blockRow >= -edgeSize; blockRow--) {
-					for (int blockCol = edgeSize; blockCol >= -edgeSize; blockCol--) {
-						output[i][j] += I[i
-								+ blockRow][j + blockCol]
-								* kernel[edgeSize + blockRow][edgeSize
-										+ blockCol];
+		for (int i = edgeSize; i < imageRows - edgeSize; i++)
+		{
+			for (int j = edgeSize; j < imageCols - edgeSize; j++)
+			{
+				for (int blockRow = edgeSize; blockRow >= -edgeSize; blockRow--)
+				{
+					for (int blockCol = edgeSize; blockCol >= -edgeSize; blockCol--)
+					{
+						output[i][j] += I[i	+ blockRow][j + blockCol] * kernel[edgeSize + blockRow][edgeSize + blockCol];
 					}
 				}
 			}
 		}
 
+		SetCorrectEdges(edgeSize, output, mirrorCalc, length, height);
+		return output;
+	}
+
+	/**
+	 * Sets the edges due to lack of miss calculation around the edges
+	 * @param edgeSize
+	 * @param output
+	 * @param mirrorCalc
+	 * @param length
+	 * @param height
+	 */
+	private static void SetCorrectEdges(int edgeSize, double[][] output,
+			int mirrorCalc, int length, int height) {
 		// Using a mirror algorithm to fill the edges:
 		for (int i = 0; i < edgeSize; i++) {
 			for (int j = edgeSize; j < output.length - edgeSize; j++) {
@@ -68,7 +85,6 @@ public class ImageProcessor {
 						+ i][j];
 			}
 		}
-		return output;
 	}
 
 	/**
@@ -78,7 +94,7 @@ public class ImageProcessor {
 	 *            RGB buffered image (values [0..255])
 	 * @return 2D array with unbounded values
 	 */
-	public static double[][] rgb2gray(BufferedImage img) //, GrayscaleMethod grayscaleMethod) {
+	public static double[][] rgb2gray(BufferedImage img)
 	{
 		int height = img.getHeight();
 		int width = img.getWidth();
@@ -98,6 +114,8 @@ public class ImageProcessor {
 		return result;
 	}
 
+	
+	
 	/**
 	 * Converts an intensity matrix to RGB image object. Values clipped between
 	 * [0..1]
@@ -107,8 +125,8 @@ public class ImageProcessor {
 	 * @return BufferedImage containing the input monochromic image in each
 	 *         channel
 	 */
-	public static BufferedImage gray2rgb(double[][] A) {
-
+	public static BufferedImage gray2rgb(double[][] A)
+	{
 		int height = A.length;
 		int width = A[0].length;
 
@@ -116,11 +134,14 @@ public class ImageProcessor {
 				BufferedImage.TYPE_INT_RGB);
 
 		for (int x = 0; x < width; ++x)
-			for (int y = 0; y < height; ++y) {
+		{
+			for (int y = 0; y < height; ++y)
+			{
 				int val = (int) Math.floor(A[y][x] * 255);
 				val = Math.min(Math.max(val, 0), 255);
 				img.setRGB(x, y, (new Color(val, val, val)).getRGB());
 			}
+		}
 		return img;
 	}
 
@@ -168,5 +189,28 @@ public class ImageProcessor {
 		}
 
 		return tempImg;
+	}
+
+	public static double[][] KernelMult(double[][] kernelA, double[][] kernelB)
+	{
+		double[][] res = new double[kernelA.length][kernelA[0].length];
+		for(int i = 0; i < kernelA.length ; i++)
+		{
+			for(int j = 0; j < kernelA[0].length ; j++)
+			{
+				res[i][j] = kernelA[i][j] * kernelB[i][j];
+				res[i][j] = res[i][j] / 121;
+			}
+		}
+		return res;
+	}
+	
+	public static BufferedImage BiliteralConvolve(double[][] img, double[][] kernel)
+	{
+//		BufferedImage image = getImage();
+		
+		System.out.println("YEY");
+		
+		return null;
 	}
 }
