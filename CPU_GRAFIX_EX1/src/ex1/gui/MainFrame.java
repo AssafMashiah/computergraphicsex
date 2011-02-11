@@ -11,7 +11,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -22,7 +21,7 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import ex1.model.BiliteralSmoother;
-
+import ex1.model.ImageProcessor;
 
 /**
  * Frame of the main GUI of the application
@@ -63,7 +62,7 @@ public class MainFrame extends JFrame {
 		setNativeLookAndFeel();
 		
 		// Create UI components
-		m_ImagePanel = new ImagePanel();		
+		m_ImagePanel = new ImagePanel();
 		
 		// Add UI components
 		this.getContentPane().setLayout(new BorderLayout());	
@@ -106,24 +105,24 @@ public class MainFrame extends JFrame {
 	    fileMenu.setMnemonic(KeyEvent.VK_F);
 	    
 	    JMenuItem fileOpen = new JMenuItem("Open...", KeyEvent.VK_O);
-	    fileOpen.setAccelerator(
-	    		KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+	    fileOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 	    fileMenu.add(fileOpen);
 	    	    	    
-	    fileOpen.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
+	    fileOpen.addActionListener(new ActionListener()
+	    {
+			public void actionPerformed(ActionEvent e)
+			{
 				showFileOpenDialog();			
 			}
 		});
 	    
 	    JMenuItem menuItem = new JMenuItem("Save As...", KeyEvent.VK_A);
-	    menuItem.setAccelerator(
-	    		KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));	    
+	    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));	    
 	    fileMenu.add(menuItem);
-	    menuItem.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
+	    menuItem.addActionListener(new ActionListener()
+	    {
+			public void actionPerformed(ActionEvent e)
+			{
 				showFileSaveDialog();			
 			}
 		});	    	    
@@ -134,29 +133,29 @@ public class MainFrame extends JFrame {
 	    JMenu viewMenu = new JMenu("TestWindow");
 	    viewMenu.setMnemonic(KeyEvent.VK_W);
 		
-		JCheckBoxMenuItem grayscaleItem = new JCheckBoxMenuItem("Grayscale");
-		grayscaleItem.setAccelerator(
-	    		KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));	    		
+		JMenuItem grayscaleItem = new JMenuItem("Grayscale");
+		grayscaleItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));	    		
 	    viewMenu.add(grayscaleItem);
-	    grayscaleItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JCheckBoxMenuItem chk = (JCheckBoxMenuItem) e.getSource();
-				chk.setSelected(chk.isSelected());
-				m_GrayscaleFrame.setVisible(chk.isSelected());
+	    grayscaleItem.addActionListener(new ActionListener()
+	    {
+			public void actionPerformed(ActionEvent e)
+			{
+				m_GrayscaleFrame.setVisible(true);
 			}
 		});
 	    
-	    JCheckBoxMenuItem edgeItem = new JCheckBoxMenuItem("Edges");
-	    edgeItem.setAccelerator(
-	    		KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));	    		    
+	    JMenuItem edgeItem = new JMenuItem("Edges");
+	    edgeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));	    		    
 	    viewMenu.add(edgeItem);	    	    	    
-	    edgeItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JCheckBoxMenuItem chk = (JCheckBoxMenuItem) e.getSource();
-				chk.setSelected(chk.isSelected());
-				m_EdgeFrame.setVisible(chk.isSelected());
-				if(chk.isSelected())
+	    edgeItem.addActionListener(new ActionListener()
+	    {
+			public void actionPerformed(ActionEvent e)
+			{
+				m_EdgeFrame.setVisible(true);
+				if(m_EdgeFrame.isVisible())
+				{
 					m_EdgeFrame.showImage(m_biliteralSmoother.getEdgeImage());
+				}
 			}
 		});
 	    
@@ -167,17 +166,20 @@ public class MainFrame extends JFrame {
 	 * Creates the menu which handles the scaling operations
 	 * @return An initialized menu
 	 */
-	protected JMenu createActionMenu() {
+	protected JMenu createActionMenu()
+	{
 		JMenu menu = new JMenu("Action");
 		menu.setMnemonic(KeyEvent.VK_A);		
 		
 		final JMenuItem chkSmooth = new JMenuItem();
 		chkSmooth.setText("Smooth");
-		chkSmooth.addActionListener(new ActionListener() {
+		chkSmooth.addActionListener(new ActionListener()
+		{
 					
 			public void actionPerformed(ActionEvent arg0)
 			{
-				BiliteralSmoother.RunBiliteralSmooth(m_RawImage, 1, 1);
+				setRawImage(ImageProcessor.SmoothImage(m_RawImage));
+//				BiliteralSmoother.RunBiliteralSmooth(m_RawImage);
 				resetModel();				
 			}
 		});
@@ -189,7 +191,7 @@ public class MainFrame extends JFrame {
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				BiliteralSmoother.addEdges();
+				//BiliteralSmoother.addEdges();
 				resetModel();				
 			}
 		});
@@ -249,7 +251,7 @@ public class MainFrame extends JFrame {
 			m_ImagePanel.repaint();
 		}
 		
-		if(m_IsNewImage) 
+		if(m_IsNewImage)
 		{
 			this.pack();			
 			updateScreenPosition();

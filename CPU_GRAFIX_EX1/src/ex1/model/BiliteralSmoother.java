@@ -1,7 +1,6 @@
 package ex1.model;
 
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 /**
@@ -11,11 +10,11 @@ import java.awt.image.BufferedImage;
  */
 public class BiliteralSmoother
 {
-	private BufferedImage m_OrigImage;
 	private BufferedImage m_CurImage;
 	private BufferedImage m_CurSobel;
 
 	private double[][] m_GrayImage;
+	private static BufferedImage m_SmoothImage;
 
 	/**
 	 * Initializes the Seam Carving algorithm with the given parameters. Any old
@@ -29,11 +28,13 @@ public class BiliteralSmoother
 	public void init(BufferedImage img)
 	{
 		m_CurImage = copyImage(img);
-		m_OrigImage = copyImage(img);
 
 		// We use this private member to save redundant calculations
 		m_GrayImage = ImageProcessor.rgb2gray(m_CurImage);
 
+		m_SmoothImage = copyImage(img); 
+//			ImageProcessor.getImage(ImageProcessor.convolve(ImageProcessor.getImageDoubleArray(m_CurImage), ImageProcessor.gaussianBlur));
+		
 		// As with curImage and origImage we want to change the Sobel matrix
 		// accordingly without having to call the Sobel edge detection too much.
 		m_CurSobel = ImageProcessor.gray2rgb(ImageProcessor.sobelEdgeDetect(m_GrayImage));
@@ -48,10 +49,11 @@ public class BiliteralSmoother
 	 */
 	private BufferedImage copyImage(BufferedImage img) 
 	{
-		BufferedImage temp = new BufferedImage(img.getWidth(), img.getHeight(),
-				BufferedImage.TYPE_INT_RGB);
-		for (int col = 0; col < temp.getWidth(); col++) {
-			for (int row = 0; row < temp.getHeight(); row++) {
+		BufferedImage temp = new BufferedImage(img.getWidth(), img.getHeight(),	BufferedImage.TYPE_INT_RGB);
+		for (int col = 0; col < temp.getWidth(); col++)
+		{
+			for (int row = 0; row < temp.getHeight(); row++)
+			{
 				temp.setRGB(col, row, img.getRGB(col, row));
 			}
 		}
@@ -80,34 +82,15 @@ public class BiliteralSmoother
 		m_CurImage = ImageProcessor.BiliteralConvolve(image);
 	}
 	
-	public static void addEdges()
-	{
-//		ImageProcessor.addEdges(img, edgeImg);
-	}
-	
-	
 /////////////////////////////////////////////////////
 	
-	
-	
-	public static BufferedImage RunBiliteralSmooth(BufferedImage img, int x, int y)
+	public static BufferedImage RunBiliteralSmooth(BufferedImage img)
 	{
-		double[][] biliteralKernel = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
-		
-		int indexX = (x - 1) / 2;
-		int indexY = (y - 1) / 2;
-		
-		BufferedImage sub = img.getSubimage(indexX, indexY, ImageProcessor.gaussianBlur.length, ImageProcessor.gaussianBlur[0].length);
-		
-		for(int i = 0; i < ImageProcessor.gaussianBlur.length ; i++)
-		{
-			for(int j = 0 ; j < ImageProcessor.gaussianBlur[0].length ; j++)
-			{
-				biliteralKernel[i][j] = sub.getRGB(i, j);
-			}
-		}
-		
-		return sub;
+		// create the first kernel
+		// start dynamic kernel - pickup flag
+		// start convolving
+		// remove dynamic kernel flag
+		return m_SmoothImage;
 	}
 
 //////////////////////////////////////////////////////////////////////////////////////	
