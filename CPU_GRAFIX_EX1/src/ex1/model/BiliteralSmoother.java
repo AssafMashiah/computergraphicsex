@@ -1,5 +1,7 @@
 package ex1.model;
 
+import java.awt.Color;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 /**
@@ -34,8 +36,7 @@ public class BiliteralSmoother
 
 		// As with curImage and origImage we want to change the Sobel matrix
 		// accordingly without having to call the Sobel edge detection too much.
-		m_CurSobel = 
-			ImageProcessor.gray2rgb(ImageProcessor.sobelEdgeDetect(m_GrayImage));
+		m_CurSobel = ImageProcessor.gray2rgb(ImageProcessor.sobelEdgeDetect(m_GrayImage));
 	}
 
 	/**
@@ -60,24 +61,36 @@ public class BiliteralSmoother
 	public void Smoother(double[][] kernel, BufferedImage img)
 	{
 		double[][] image = new double[img.getWidth()][img.getHeight()];
+		BufferedImage kernelToBe = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		for(int i = 0; i < img.getWidth() ; i++)
 		{
 			for (int j = 0; j < img.getHeight() ; j++)
 			{
-				image[i][j] = img.getRGB(i, j);
+				kernelToBe.setRGB(i, j, img.getRGB(i, j));
+				
+				Color tempColor = new Color(kernelToBe.getRGB(j, i));
+				int blue = tempColor.getBlue();
+				int green = tempColor.getGreen();
+				int red = tempColor.getRed();
+				Color afterAdjustment = new Color(255 - red, 255 - green, 255 - blue);
+				image[i][j] = afterAdjustment.getRGB();
 			}
 		}
 		
-		m_CurImage = ImageProcessor.BiliteralConvolve(image, kernel);
+		m_CurImage = ImageProcessor.BiliteralConvolve(image);
 	}
 	
+	public static void addEdges()
+	{
+//		ImageProcessor.addEdges(img, edgeImg);
+	}
 	
 	
 /////////////////////////////////////////////////////
 	
 	
 	
-	public static BufferedImage SetBiliteralKernel(BufferedImage img, int x, int y)
+	public static BufferedImage RunBiliteralSmooth(BufferedImage img, int x, int y)
 	{
 		double[][] biliteralKernel = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
 		
@@ -94,7 +107,6 @@ public class BiliteralSmoother
 			}
 		}
 		
-		System.out.println("sadfasdfasdf");
 		return sub;
 	}
 

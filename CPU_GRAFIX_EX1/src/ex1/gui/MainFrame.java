@@ -175,8 +175,9 @@ public class MainFrame extends JFrame {
 		chkSmooth.setText("Smooth");
 		chkSmooth.addActionListener(new ActionListener() {
 					
-			public void actionPerformed(ActionEvent arg0) {
-				//smooth = chkSmooth.isSelected();
+			public void actionPerformed(ActionEvent arg0)
+			{
+				BiliteralSmoother.RunBiliteralSmooth(m_RawImage, 1, 1);
 				resetModel();				
 			}
 		});
@@ -188,7 +189,7 @@ public class MainFrame extends JFrame {
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				BiliteralSmoother.SetBiliteralKernel(m_RawImage, 1, 1);
+				BiliteralSmoother.addEdges();
 				resetModel();				
 			}
 		});

@@ -11,17 +11,27 @@ import quicktime.sound.Sound;
 public class ImageProcessor {
 
 	public static final double MAX_COLOR_SCALE = 255.0;
+	
 	public static double[][] deriveKernel = { { 1, 0, -1 }, { 2, 0, -2 },//TODO: Remove later
 			{ 1, 0, -1 } };
+	
 	public static double[][] deriveKernel2 = { { +1, +2, +1 }, { 0, 0, 0 },//TODO: Remove later
 			{ -1, -2, -1 } };
+	
 	public static double[][] gaussianBlur = {//TODO: Remove later
 			{ 1 / 121., 2 / 121., 3 / 121., 2 / 121., 1 / 121. },
 			{ 2 / 121., 7 / 121., 11 / 121., 7 / 121., 2 / 121. },
 			{ 3 / 121., 11 / 121., 17 / 121., 11 / 121., 3 / 121. },
 			{ 2 / 121., 7 / 121., 11 / 121., 7 / 121., 2 / 121. },
 			{ 1 / 121., 2 / 121., 3 / 121., 2 / 121., 1 / 121. } };
+	
+	private static boolean m_dynamicKernel = false;
 
+	public void setDynamicKernel()
+	{
+		m_dynamicKernel = true;
+	}
+	
 	/**
 	 * Applies a Convolution operator to a given matrix and kernel.
 	 * 
@@ -46,6 +56,11 @@ public class ImageProcessor {
 		{
 			for (int j = edgeSize; j < imageCols - edgeSize; j++)
 			{
+				if(m_dynamicKernel)
+				{
+					kernel = getBiliteralKernel();
+				}
+				
 				for (int blockRow = edgeSize; blockRow >= -edgeSize; blockRow--)
 				{
 					for (int blockCol = edgeSize; blockCol >= -edgeSize; blockCol--)
@@ -60,8 +75,15 @@ public class ImageProcessor {
 		return output;
 	}
 
+	private static double[][] getBiliteralKernel()
+	{
+		// TODO Auto-generated method stub
+		
+		return null;
+	}
+
 	/**
-	 * Sets the edges due to lack of miss calculation around the edges
+	 * 
 	 * @param edgeSize
 	 * @param output
 	 * @param mirrorCalc
@@ -69,20 +91,24 @@ public class ImageProcessor {
 	 * @param height
 	 */
 	private static void SetCorrectEdges(int edgeSize, double[][] output,
-			int mirrorCalc, int length, int height) {
+			int mirrorCalc, int length, int height)
+	{
 		// Using a mirror algorithm to fill the edges:
-		for (int i = 0; i < edgeSize; i++) {
-			for (int j = edgeSize; j < output.length - edgeSize; j++) {
+		for (int i = 0; i < edgeSize; i++)
+		{
+			for (int j = edgeSize; j < output.length - edgeSize; j++)
+			{
 				output[j][i] = output[j][mirrorCalc - i];
-				output[j][height - i] = output[j][height - mirrorCalc
-						+ i];
+				output[j][height - i] = output[j][height - mirrorCalc + i];
 			}
 		}
-		for (int i = 0; i < edgeSize; i++) {
-			for (int j = 0; j < output[0].length; j++) {
+		
+		for (int i = 0; i < edgeSize; i++)
+		{
+			for (int j = 0; j < output[0].length; j++)
+			{
 				output[i][j] = output[mirrorCalc - i][j];
-				output[length - i][j] = output[length - mirrorCalc
-						+ i][j];
+				output[length - i][j] = output[length - mirrorCalc + i][j];
 			}
 		}
 	}
@@ -147,11 +173,10 @@ public class ImageProcessor {
 
 	/**
 	 * Linearly scales values of a given matrix to the range [0,1]
-	 * 
-	 * @param A
-	 *            A 2D array
+	 * @param A A 2D array
 	 */
-	public static void normalize(double[][] A) {
+	public static void normalize(double[][] A)
+	{
 		int rows = A.length;
 		int cols = A[0].length;
 
@@ -159,22 +184,33 @@ public class ImageProcessor {
 		double min = Double.MAX_VALUE;
 
 		for (int i = 0; i < rows; ++i)
-			for (int j = 0; j < cols; ++j) {
-				if (A[i][j] >= max)
-					max = A[i][j];
-				if (A[i][j] <= min)
-					min = A[i][j];
-			}
-		for (int i = 0; i < rows; ++i)
+		{
 			for (int j = 0; j < cols; ++j)
+			{
+				if (A[i][j] >= max)
+				{
+					max = A[i][j];
+				}
+				if (A[i][j] <= min)
+				{
+					min = A[i][j];
+				}
+			}
+		}
+		
+		for (int i = 0; i < rows; ++i)
+		{
+			for (int j = 0; j < cols; ++j)
+			{
 				A[i][j] = (A[i][j] - min) / (max - min);
+			}
+		}
 	}
 
 	/**
 	 * Given a grayscale image should perform the edge detection algorithm
 	 * 
-	 * @param I
-	 *            Input grayscale intensity image
+	 * @param I Input grayscale intensity image
 	 * @return New image with marked edges. Should have positive values.
 	 */
 	public static double[][] sobelEdgeDetect(double[][] I) {
@@ -182,8 +218,10 @@ public class ImageProcessor {
 		double[][] xGrad = convolve(tempImg, deriveKernel);
 		double[][] yGrad = convolve(tempImg, deriveKernel2);
 		
-		for (int i = 0; i < tempImg.length - 1; i++) {
-			for (int j = 0; j < tempImg[0].length - 1; j++) {
+		for (int i = 0; i < tempImg.length - 1; i++)
+		{
+			for (int j = 0; j < tempImg[0].length - 1; j++)
+			{
 				tempImg[i][j] = Math.hypot(xGrad[i][j], yGrad[i][j]);
 			}
 		}
@@ -204,11 +242,26 @@ public class ImageProcessor {
 		}
 		return res;
 	}
-	
-	public static BufferedImage BiliteralConvolve(double[][] img, double[][] kernel)
+
+	/**
+	 * adds the edges to the image
+	 * @param img
+	 * @param edgeImg
+	 */
+	public static void addEdges(double[][] img, double[][] edgeImg)
 	{
-//		BufferedImage image = getImage();
-		
+		for(int i = 0; i < img.length ; i++)
+		{
+			for(int j = 0; j < img[0].length ; j++)
+			{
+				// might need to make sure the numbers don't go to high...
+				img[i][j] = img[i][j] + edgeImg[i][j];
+			}
+		}
+	}
+	
+	public static BufferedImage BiliteralConvolve(double[][] img)
+	{
 		System.out.println("YEY");
 		
 		return null;
