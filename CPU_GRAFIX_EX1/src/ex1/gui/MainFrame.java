@@ -48,8 +48,8 @@ public class MainFrame extends JFrame {
 	private String m_aboutMessage;
 
 	private boolean m_IsNewImage;
-	
-	//private boolean smooth;
+
+	protected boolean m_Once = true;
 	
 	/**
 	 * Create Frame GUI
@@ -179,7 +179,6 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent arg0)
 			{
 				setRawImage(ImageProcessor.SmoothImage(m_RawImage));
-//				BiliteralSmoother.RunBiliteralSmooth(m_RawImage);
 				resetModel();				
 			}
 		});
@@ -191,8 +190,13 @@ public class MainFrame extends JFrame {
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				//BiliteralSmoother.addEdges();
-				resetModel();				
+				if(m_Once)
+				{
+					BufferedImage temp = ImageProcessor.addEdges(m_biliteralSmoother.getImage(), m_biliteralSmoother.getEdgeImage());
+					setRawImage(temp);
+					resetModel();
+					m_Once = false;
+				}
 			}
 		});
 		menu.add(chkAddEdges);

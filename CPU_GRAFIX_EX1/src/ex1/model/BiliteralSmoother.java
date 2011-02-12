@@ -1,18 +1,17 @@
 package ex1.model;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * Class for performing content aware image resizing using the Seam Carving
- * method
+ * Class for performing content aware image resizing using the Seam Carving method
  */
 public class BiliteralSmoother
 {
 	private BufferedImage m_CurImage;
 	private BufferedImage m_CurSobel;
+	private BufferedImage m_GrayImage;
 
-	private double[][] m_GrayImage;
+	private double[][] m_GrayImageArray;
 	private static BufferedImage m_SmoothImage;
 
 	/**
@@ -26,23 +25,23 @@ public class BiliteralSmoother
 	 */
 	public void init(BufferedImage img)
 	{
+		// Save a copy of the image so we don't loos it :)
 		m_CurImage = copyImage(img);
 
 		// We use this private member to save redundant calculations
-		m_GrayImage = ImageProcessor.rgb2gray(m_CurImage);
+		m_GrayImageArray = ImageProcessor.rgb2gray(m_CurImage);
 
 		m_SmoothImage = copyImage(img); 
 		
 		// As with curImage and origImage we want to change the Sobel matrix
 		// accordingly without having to call the Sobel edge detection too much.
-		m_CurSobel = ImageProcessor.gray2rgb(ImageProcessor.sobelEdgeDetect(m_GrayImage));
+		m_CurSobel = ImageProcessor.gray2rgb(ImageProcessor.sobelEdgeDetect(m_GrayImageArray));
 	}
 
 	/**
 	 * We can think of this method like a copy constructor for BufferedImage
 	 * 
-	 * @param img
-	 *            - the BufferedImage to copy
+	 * @param img - the BufferedImage to copy
 	 * @return - a copied BufferedImage
 	 */
 	private BufferedImage copyImage(BufferedImage img) 
@@ -58,26 +57,11 @@ public class BiliteralSmoother
 		return temp;
 	}
 
-	public void Smoother(double[][] kernel, BufferedImage img)
-	{
-		double[][] image = new double[img.getWidth()][img.getHeight()];
-		BufferedImage kernelToBe = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		for(int i = 0; i < img.getWidth() ; i++)
-		{
-			for (int j = 0; j < img.getHeight() ; j++)
-			{
-				kernelToBe.setRGB(i, j, img.getRGB(i, j));
-				
-				Color tempColor = new Color(kernelToBe.getRGB(j, i));
-				int blue = tempColor.getBlue();
-				int green = tempColor.getGreen();
-				int red = tempColor.getRed();
-				Color afterAdjustment = new Color(255 - red, 255 - green, 255 - blue);
-				image[i][j] = afterAdjustment.getRGB();
-			}
-		}
-	}
-	
+	/**
+	 * Gets the smooth image
+	 * @param img
+	 * @return
+	 */
 	public static BufferedImage RunBiliteralSmooth(BufferedImage img)
 	{
 		return m_SmoothImage;
@@ -91,7 +75,8 @@ public class BiliteralSmoother
 	 */
 	public BufferedImage getGrayscaleImage() 
 	{
-		return ImageProcessor.gray2rgb(m_GrayImage);
+		m_GrayImage = ImageProcessor.gray2rgb(m_GrayImageArray);; 
+		return m_GrayImage;
 	}
 
 	/**

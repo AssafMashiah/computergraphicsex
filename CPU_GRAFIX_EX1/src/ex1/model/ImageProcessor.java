@@ -37,7 +37,7 @@ public class ImageProcessor
 	 *            The kernel/filter. Must be square and have odd size!
 	 * @return A new 2D array not necessarily of the size as I
 	 */
-	public static double[][] convolve(double[][] I, double[][] kernel, boolean dynamicKernel,  int whichColor)
+	public static double[][] convolve(double[][] I, double[][] kernel)
 	{
 		int kernelRows = kernel.length;
 		int imageRows = I.length;
@@ -53,11 +53,6 @@ public class ImageProcessor
 		{
 			for (int j = edgeSize; j < imageCols - edgeSize; j++)
 			{
-				if(dynamicKernel)
-				{
-					kernel = getBiliteralKernel(i, j, whichColor);
-				}
-				
 				for (int blockRow = edgeSize; blockRow >= -edgeSize; blockRow--)
 				{
 					for (int blockCol = edgeSize; blockCol >= -edgeSize; blockCol--)
@@ -74,57 +69,7 @@ public class ImageProcessor
 
 	}
 
-	private static double[][] getBiliteralKernel(int x, int y, int whichColor)
-	{
-
-		double[][] biliteralKernel = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
-		double[][] imageRed = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
-		double[][] imageGreen = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
-		double[][] imageBlue = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
-		
-		int indexX = (x - 1) / 2;
-		int indexY = (y - 1) / 2;
-		
-		int[] originalPixel = new int[3];
-		Color originalPointOfRefrencColor = new Color(m_OriginalImage.getRGB(x, y));
-		
-		originalPixel[0] = originalPointOfRefrencColor.getRed();
-		originalPixel[1] = originalPointOfRefrencColor.getGreen();
-		originalPixel[2] = originalPointOfRefrencColor.getBlue();
-		
-		for(int i = 0; i < ImageProcessor.gaussianBlur.length ; i++)
-		{
-			for(int j = 0 ; j < ImageProcessor.gaussianBlur[0].length ; j++)
-			{
-				Color temp = new Color(m_OriginalImage.getRGB(indexX + i, indexY + j));
-				imageRed[i][j] = (255 - Math.abs(originalPixel[0] - temp.getRed())) * temp.getRed();
-				imageGreen[i][j] = (255 - Math.abs(originalPixel[1] - temp.getGreen())) * temp.getGreen();
-				imageBlue[i][j] = (255 - Math.abs(originalPixel[2] - temp.getBlue())) * temp.getBlue();
-			}
-		}
-		
-//		imageRed = KernelMult(imageRed, gaussianBlur);
-//		imageGreen = KernelMult(imageGreen, gaussianBlur);
-//		imageBlue = KernelMult(imageBlue, gaussianBlur);
-		
-		biliteralKernel = KernelMult(biliteralKernel, gaussianBlur);
-		
-		switch(whichColor)
-		{
-			case 1: 
-				biliteralKernel = imageRed;
-				break;
-			case 2: 
-				biliteralKernel = imageGreen;
-				break;
-			case 3:
-				biliteralKernel = imageBlue;
-				break;
-		}
-		return biliteralKernel;
-	}
-
-	private static BufferedImage runBiliteralSmooth(int sigma) //, int x, int y)
+	private static BufferedImage runBiliteralSmooth(int sigma)
 	{
 		BufferedImage image = new BufferedImage(m_OriginalImage.getWidth(), m_OriginalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 		
@@ -149,7 +94,8 @@ public class ImageProcessor
 				double noramlizerRed = 0;
 				double noramlizerGreen = 0;
 				double noramlizerBlue = 0;
-				// tahlessss
+				
+				// this is where the magic happens
 				for (int blockRow = sigma - 1; blockRow >= -(sigma - 1); blockRow--)
 				{
 					for (int blockCol = sigma - 1; blockCol >= -(sigma - 1); blockCol--)
@@ -214,6 +160,11 @@ public class ImageProcessor
 		}
 	}
 
+	/**
+	 * Sets every thing to the correct place
+	 * @param img
+	 * @return
+	 */
 	public static BufferedImage SmoothImage(BufferedImage img)
 	{
 		m_OriginalImage = img;
@@ -231,6 +182,15 @@ public class ImageProcessor
 		return runBiliteralSmooth(7);
 	}
 
+	/**
+	 * set's stuff we need later - a type of initiation
+	 * @param img
+	 * @param width
+	 * @param height
+	 * @param originalImageRed
+	 * @param originalImageGreen
+	 * @param originalImageBlue
+	 */
 	private static void setColoredImages(BufferedImage img, int width,
 			int height, double[][] originalImageRed,
 			double[][] originalImageGreen, double[][] originalImageBlue)
@@ -246,11 +206,9 @@ public class ImageProcessor
 				
 			}
 		}
-		
 		m_OriginalImageRed = originalImageRed;
 		m_OriginalImageGreen = originalImageGreen;
 		m_OriginalImageBlue = originalImageBlue;
-		
 	}
 	
 	
@@ -280,6 +238,13 @@ public class ImageProcessor
 		return result;
 	}
 
+	/**
+	 * Gets the image as a double array 
+	 * 
+	 * @remark this function is good for testing thing as you go along
+	 * @param img
+	 * @return
+	 */
 	public static double[][] getImageDoubleArray(BufferedImage img)
 	{
 		int height = img.getHeight();
@@ -295,26 +260,6 @@ public class ImageProcessor
 		}
 		return result;
 	}
-	
-	public static BufferedImage getImage(double[][] img)
-	{
-		int height = img.length;
-		int width = img[0].length;
-		BufferedImage result = new BufferedImage(width, height,BufferedImage.TYPE_INT_ARGB);
-
-		for (int i = 0; i < height; i++)
-		{
-			for (int j = 0; j < width; j++)
-			{
-				Color currentColor = new Color((int)img[i][j]);
-				System.out.println(currentColor.getRGB());
-				result.setRGB(j, i, currentColor.getRGB()); 
-			}
-		}
-		return result;
-	}
-
-	
 	
 	/**
 	 * Converts an intensity matrix to RGB image object. Values clipped between
@@ -389,9 +334,9 @@ public class ImageProcessor
 	 */
 	public static double[][] sobelEdgeDetect(double[][] I)
 	{
-		double[][] tempImg = convolve(I, gaussianBlur, false, 0);
-		double[][] xGrad = convolve(tempImg, deriveKernel, false, 0);
-		double[][] yGrad = convolve(tempImg, deriveKernel2, false, 0);
+		double[][] tempImg = convolve(I, gaussianBlur);
+		double[][] xGrad = convolve(tempImg, deriveKernel);
+		double[][] yGrad = convolve(tempImg, deriveKernel2);
 		
 		for (int i = 0; i < tempImg.length - 1; i++)
 		{
@@ -404,35 +349,30 @@ public class ImageProcessor
 		return tempImg;
 	}
 
-	public static double[][] KernelMult(double[][] kernelA, double[][] kernelB)
-	{
-		double[][] res = new double[kernelA.length][kernelA[0].length];
-		for(int i = 0; i < kernelA.length ; i++)
-		{
-			for(int j = 0; j < kernelA[0].length ; j++)
-			{
-				res[i][j] = kernelA[i][j] * kernelB[i][j];
-				res[i][j] = res[i][j] / (255);
-			}
-		}
-		return res;
-	}
-
 	/**
-	 * adds the edges to the image
+	 * adds the edges to the image 
+	 * 
+	 * @remark you can use only one of the co0lors in the pixel to determine the color
 	 * @param img
 	 * @param edgeImg
 	 */
-	public static void addEdges(double[][] img, double[][] edgeImg)
+	public static BufferedImage addEdges(BufferedImage img, BufferedImage edgeImg)
 	{
-		for(int i = 0; i < img.length ; i++)
+		BufferedImage result = img;
+		
+		for(int i = 0; i < img.getWidth() ; i++)
 		{
-			for(int j = 0; j < img[0].length ; j++)
+			for(int j = 0; j < img.getHeight() ; j++)
 			{
-				// might need to make sure the numbers don't go to high...
-				img[i][j] = img[i][j] + edgeImg[i][j];
+				Color tempColor = new Color(edgeImg.getRGB(i, j));
+				int blue = tempColor.getBlue();
+
+				if(blue > 200)
+				{
+					result.setRGB(i, j, new Color(255, 255, 255).getRGB());
+				}
 			}
 		}
-	}
-	
+		return result;
+	}	
 }
