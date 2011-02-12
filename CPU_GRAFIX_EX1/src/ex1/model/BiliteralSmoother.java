@@ -79,7 +79,7 @@ public class BiliteralSmoother
 			}
 		}
 		
-		m_CurImage = ImageProcessor.BiliteralConvolve(image);
+		//m_CurImage = ImageProcessor.BiliteralConvolve(image);
 	}
 	
 /////////////////////////////////////////////////////

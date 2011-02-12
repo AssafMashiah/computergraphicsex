@@ -6,7 +6,8 @@ import java.awt.image.BufferedImage;
 /**
  * Contains a few handy image processing routines
  */
-public class ImageProcessor {
+public class ImageProcessor
+{
 
 	public static final double MAX_COLOR_SCALE = 255.0;
 	
@@ -22,6 +23,8 @@ public class ImageProcessor {
 			{ 3 / 121., 11 / 121., 17 / 121., 11 / 121., 3 / 121. },
 			{ 2 / 121., 7 / 121., 11 / 121., 7 / 121., 2 / 121. },
 			{ 1 / 121., 2 / 121., 3 / 121., 2 / 121., 1 / 121. } };
+
+	private static BufferedImage originalImage;
 	
 	/**
 	 * Applies a Convolution operator to a given matrix and kernel.
@@ -32,7 +35,8 @@ public class ImageProcessor {
 	 *            The kernel/filter. Must be square and have odd size!
 	 * @return A new 2D array not necessarily of the size as I
 	 */
-	public static double[][] convolve(double[][] I, double[][] kernel, boolean dynamicKernel) {
+	public static double[][] convolve(double[][] I, double[][] kernel, boolean dynamicKernel,  int whichColor)
+	{
 		int kernelRows = kernel.length;
 		int imageRows = I.length;
 		int imageCols = I[0].length;
@@ -49,7 +53,7 @@ public class ImageProcessor {
 			{
 				if(dynamicKernel)
 				{
-					kernel = getBiliteralKernel(I, i, j);
+					kernel = getBiliteralKernel(i, j, whichColor);
 				}
 				
 				for (int blockRow = edgeSize; blockRow >= -edgeSize; blockRow--)
@@ -64,35 +68,57 @@ public class ImageProcessor {
 
 		SetCorrectEdges(edgeSize, output, mirrorCalc, length, height);
 		
-		
-		
 		return output;
+
 	}
 
-	private static double[][] getBiliteralKernel(double[][] img, int x, int y)
+	private static double[][] getBiliteralKernel(int x, int y, int whichColor)
 	{
 
 		double[][] biliteralKernel = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
+		double[][] imageRed = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
+		double[][] imageGreen = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
+		double[][] imageBlue = new double[ImageProcessor.gaussianBlur.length][ImageProcessor.gaussianBlur[0].length];
 		
 		int indexX = (x - 1) / 2;
 		int indexY = (y - 1) / 2;
+		
+		int[] originalPixel = new int[3];
+		Color originalPointOfRefrencColor = new Color(originalImage.getRGB(x, y));
+		
+		originalPixel[0] = originalPointOfRefrencColor.getRed();
+		originalPixel[1] = originalPointOfRefrencColor.getGreen();
+		originalPixel[2] = originalPointOfRefrencColor.getBlue();
 		
 		for(int i = 0; i < ImageProcessor.gaussianBlur.length ; i++)
 		{
 			for(int j = 0 ; j < ImageProcessor.gaussianBlur[0].length ; j++)
 			{
-				//TODO:
-				biliteralKernel[i][j] = img[indexX][indexY];
-				
-//				if(i == j)
-//				{
-//					System.out.println(biliteralKernel[i][j]);
-//				}
+				Color temp = new Color(originalImage.getRGB(indexX + i, indexY + j));
+				imageRed[i][j] = (255 - Math.abs(originalPixel[0] - temp.getRed())) * temp.getRed();
+				imageGreen[i][j] = (255 - Math.abs(originalPixel[1] - temp.getGreen())) * temp.getGreen();
+				imageBlue[i][j] = (255 - Math.abs(originalPixel[2] - temp.getBlue())) * temp.getBlue();
 			}
 		}
 		
+		imageRed = KernelMult(imageRed, gaussianBlur);
+		imageGreen = KernelMult(imageGreen, gaussianBlur);
+		imageBlue = KernelMult(imageBlue, gaussianBlur);
+		
 		biliteralKernel = KernelMult(biliteralKernel, gaussianBlur);
 		
+		switch(whichColor)
+		{
+			case 1: 
+				biliteralKernel = imageRed;
+				break;
+			case 2: 
+				biliteralKernel = imageGreen;
+				break;
+			case 3:
+				biliteralKernel = imageBlue;
+				break;
+		}
 		return biliteralKernel;
 	}
 
@@ -129,8 +155,13 @@ public class ImageProcessor {
 
 	public static BufferedImage SmoothImage(BufferedImage img)
 	{
+		originalImage = img;
 		int width = img.getWidth();
 		int height = img.getHeight();
+		
+		double[][] originalImageRed = new double[width][height];
+		double[][] originalImageGreen = new double[width][height];
+		double[][] originalImageBlue = new double[width][height];
 		
 		double[][] imageRed = new double[width][height];
 		double[][] imageGreen = new double[width][height];
@@ -141,15 +172,15 @@ public class ImageProcessor {
 			for(int j = 0; j < height; j++)
 			{
 				Color temp = new Color(img.getRGB(i, j));
-				imageRed[i][j] = temp.getRed();
-				imageGreen[i][j] = temp.getGreen();
-				imageBlue[i][j] = temp.getBlue();
+				originalImageRed[i][j] = temp.getRed();
+				originalImageGreen[i][j] = temp.getGreen();
+				originalImageBlue[i][j] = temp.getBlue();
 			}
 		}
 		
-		imageRed = convolve(imageRed, gaussianBlur, true);
-		imageGreen = convolve(imageGreen, gaussianBlur, true);
-		imageBlue = convolve(imageBlue, gaussianBlur, true);
+		imageRed = convolve(originalImageRed, gaussianBlur, true, 1);
+		imageGreen = convolve(originalImageGreen, gaussianBlur, true, 2);
+		imageBlue = convolve(originalImageBlue, gaussianBlur, true, 3);
 		
 		BufferedImage returnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
@@ -157,6 +188,7 @@ public class ImageProcessor {
 		{
 			for(int j = 0; j < height - 2; j++)
 			{
+				System.out.println("The color vecotr: (" + Math.round(imageRed[i][j]) + ", " + Math.round(imageGreen[i][j]) + ", " + Math.round(imageBlue[i][j]) + ")");
 				returnImage.setRGB(i, j, new Color((int)Math.round(imageRed[i][j]), (int)Math.round(imageGreen[i][j]), (int)Math.round(imageBlue[i][j])).getRGB());
 			}
 		}
@@ -297,10 +329,11 @@ public class ImageProcessor {
 	 * @param I Input grayscale intensity image
 	 * @return New image with marked edges. Should have positive values.
 	 */
-	public static double[][] sobelEdgeDetect(double[][] I) {
-		double[][] tempImg = convolve(I, gaussianBlur, false);
-		double[][] xGrad = convolve(tempImg, deriveKernel, false);
-		double[][] yGrad = convolve(tempImg, deriveKernel2, false);
+	public static double[][] sobelEdgeDetect(double[][] I)
+	{
+		double[][] tempImg = convolve(I, gaussianBlur, false, 0);
+		double[][] xGrad = convolve(tempImg, deriveKernel, false, 0);
+		double[][] yGrad = convolve(tempImg, deriveKernel2, false, 0);
 		
 		for (int i = 0; i < tempImg.length - 1; i++)
 		{
@@ -321,7 +354,7 @@ public class ImageProcessor {
 			for(int j = 0; j < kernelA[0].length ; j++)
 			{
 				res[i][j] = kernelA[i][j] * kernelB[i][j];
-				res[i][j] = res[i][j] / 1210;
+				res[i][j] = res[i][j] / (255);
 			}
 		}
 		return res;
@@ -344,10 +377,4 @@ public class ImageProcessor {
 		}
 	}
 	
-	public static BufferedImage BiliteralConvolve(double[][] img)
-	{
-		System.out.println("YEY");
-		
-		return null;
-	}
 }
