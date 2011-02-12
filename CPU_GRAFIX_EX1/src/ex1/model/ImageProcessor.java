@@ -24,8 +24,10 @@ public class ImageProcessor
 			{ 2 / 121., 7 / 121., 11 / 121., 7 / 121., 2 / 121. },
 			{ 1 / 121., 2 / 121., 3 / 121., 2 / 121., 1 / 121. } };
 
-	private static BufferedImage originalImage;
-	
+	private static BufferedImage m_OriginalImage;
+	public static  double[][] m_OriginalImageRed;
+	public static  double[][] m_OriginalImageGreen;
+	public static  double[][] m_OriginalImageBlue;
 	/**
 	 * Applies a Convolution operator to a given matrix and kernel.
 	 * 
@@ -84,7 +86,7 @@ public class ImageProcessor
 		int indexY = (y - 1) / 2;
 		
 		int[] originalPixel = new int[3];
-		Color originalPointOfRefrencColor = new Color(originalImage.getRGB(x, y));
+		Color originalPointOfRefrencColor = new Color(m_OriginalImage.getRGB(x, y));
 		
 		originalPixel[0] = originalPointOfRefrencColor.getRed();
 		originalPixel[1] = originalPointOfRefrencColor.getGreen();
@@ -94,16 +96,16 @@ public class ImageProcessor
 		{
 			for(int j = 0 ; j < ImageProcessor.gaussianBlur[0].length ; j++)
 			{
-				Color temp = new Color(originalImage.getRGB(indexX + i, indexY + j));
+				Color temp = new Color(m_OriginalImage.getRGB(indexX + i, indexY + j));
 				imageRed[i][j] = (255 - Math.abs(originalPixel[0] - temp.getRed())) * temp.getRed();
 				imageGreen[i][j] = (255 - Math.abs(originalPixel[1] - temp.getGreen())) * temp.getGreen();
 				imageBlue[i][j] = (255 - Math.abs(originalPixel[2] - temp.getBlue())) * temp.getBlue();
 			}
 		}
 		
-		imageRed = KernelMult(imageRed, gaussianBlur);
-		imageGreen = KernelMult(imageGreen, gaussianBlur);
-		imageBlue = KernelMult(imageBlue, gaussianBlur);
+//		imageRed = KernelMult(imageRed, gaussianBlur);
+//		imageGreen = KernelMult(imageGreen, gaussianBlur);
+//		imageBlue = KernelMult(imageBlue, gaussianBlur);
 		
 		biliteralKernel = KernelMult(biliteralKernel, gaussianBlur);
 		
@@ -122,6 +124,65 @@ public class ImageProcessor
 		return biliteralKernel;
 	}
 
+	private static BufferedImage runBiliteralSmooth(int sigma) //, int x, int y)
+	{
+		BufferedImage image = new BufferedImage(m_OriginalImage.getWidth(), m_OriginalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+		
+		int imageCols = m_OriginalImage.getHeight();
+		int imageRows = m_OriginalImage.getWidth();
+		
+		double divisor = (2 * Math.pow(sigma,2));
+		// The convolution process
+		for (int i = sigma; i < imageRows - sigma; i++)
+		{
+			for (int j = sigma; j < imageCols - sigma; j++)
+			{
+				int[] originalPixel = new int[3];
+				Color originalPointOfRefrencColor = new Color(m_OriginalImage.getRGB(i, j));
+				
+				originalPixel[0] = originalPointOfRefrencColor.getRed();
+				originalPixel[1] = originalPointOfRefrencColor.getGreen();
+				originalPixel[2] = originalPointOfRefrencColor.getBlue();
+				double sumRed = 0;
+				double sumGreen = 0;
+				double sumBlue = 0;
+				double noramlizerRed = 0;
+				double noramlizerGreen = 0;
+				double noramlizerBlue = 0;
+				// tahlessss
+				for (int blockRow = sigma - 1; blockRow >= -(sigma - 1); blockRow--)
+				{
+					for (int blockCol = sigma - 1; blockCol >= -(sigma - 1); blockCol--)
+					{
+
+						
+						double gaussian = Math.exp(-(Math.pow(blockRow, 2) + Math.pow(blockCol, 2))/divisor); 
+						double rangeRed = Math.exp(-Math.pow((m_OriginalImageRed[i - blockRow][j - blockCol] - originalPixel[0]),2)/divisor); 
+						double rangeGreen = Math.exp(-Math.pow((m_OriginalImageGreen[i - blockRow][j - blockCol] - originalPixel[1]),2)/divisor);
+						double rangeBlue = Math.exp(-Math.pow((m_OriginalImageBlue[i - blockRow][j - blockCol] - originalPixel[2]),2)/divisor);
+						
+						sumRed += gaussian * rangeRed * m_OriginalImageRed[i - blockRow][j - blockCol];
+						sumGreen += gaussian * rangeGreen * m_OriginalImageGreen[i - blockRow][j - blockCol];
+						sumBlue += gaussian * rangeBlue * m_OriginalImageBlue[i - blockRow][j - blockCol];
+						
+						noramlizerRed += gaussian * rangeRed;
+						noramlizerGreen += gaussian * rangeGreen;
+						noramlizerBlue += gaussian * rangeBlue;
+					}
+					
+				}
+				double finalRed = sumRed / noramlizerRed;
+				double finalGreen = sumGreen / noramlizerGreen;
+				double finalBlue = sumBlue / noramlizerBlue;
+				
+				
+				image.setRGB(i, j, new Color((int)Math.round(finalRed), (int)Math.round(finalGreen), (int)Math.round(finalBlue)).getRGB());
+			}
+		}
+		
+		return image;
+	}
+	
 	/**
 	 * 
 	 * @param edgeSize
@@ -155,7 +216,7 @@ public class ImageProcessor
 
 	public static BufferedImage SmoothImage(BufferedImage img)
 	{
-		originalImage = img;
+		m_OriginalImage = img;
 		int width = img.getWidth();
 		int height = img.getHeight();
 		
@@ -163,10 +224,17 @@ public class ImageProcessor
 		double[][] originalImageGreen = new double[width][height];
 		double[][] originalImageBlue = new double[width][height];
 		
-		double[][] imageRed = new double[width][height];
-		double[][] imageGreen = new double[width][height];
-		double[][] imageBlue = new double[width][height];
-		
+		// saves the image as red, green and blue images
+		setColoredImages(img, width, height, originalImageRed,
+				originalImageGreen, originalImageBlue);
+
+		return runBiliteralSmooth(7);
+	}
+
+	private static void setColoredImages(BufferedImage img, int width,
+			int height, double[][] originalImageRed,
+			double[][] originalImageGreen, double[][] originalImageBlue)
+	{
 		for(int i = 0; i < width; i++)
 		{
 			for(int j = 0; j < height; j++)
@@ -175,26 +243,16 @@ public class ImageProcessor
 				originalImageRed[i][j] = temp.getRed();
 				originalImageGreen[i][j] = temp.getGreen();
 				originalImageBlue[i][j] = temp.getBlue();
+				
 			}
 		}
 		
-		imageRed = convolve(originalImageRed, gaussianBlur, true, 1);
-		imageGreen = convolve(originalImageGreen, gaussianBlur, true, 2);
-		imageBlue = convolve(originalImageBlue, gaussianBlur, true, 3);
+		m_OriginalImageRed = originalImageRed;
+		m_OriginalImageGreen = originalImageGreen;
+		m_OriginalImageBlue = originalImageBlue;
 		
-		BufferedImage returnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		
-		for(int i = 0; i < width - 2; i++)
-		{
-			for(int j = 0; j < height - 2; j++)
-			{
-				System.out.println("The color vecotr: (" + Math.round(imageRed[i][j]) + ", " + Math.round(imageGreen[i][j]) + ", " + Math.round(imageBlue[i][j]) + ")");
-				returnImage.setRGB(i, j, new Color((int)Math.round(imageRed[i][j]), (int)Math.round(imageGreen[i][j]), (int)Math.round(imageBlue[i][j])).getRGB());
-			}
-		}
-		
-		return returnImage;
 	}
+	
 	
 	/**
 	 * Converts an RGB image object to intensity matrix representation.

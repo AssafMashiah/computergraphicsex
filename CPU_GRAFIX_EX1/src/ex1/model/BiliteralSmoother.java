@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 /**
  * Class for performing content aware image resizing using the Seam Carving
  * method
- * 
  */
 public class BiliteralSmoother
 {
@@ -33,7 +32,6 @@ public class BiliteralSmoother
 		m_GrayImage = ImageProcessor.rgb2gray(m_CurImage);
 
 		m_SmoothImage = copyImage(img); 
-//			ImageProcessor.getImage(ImageProcessor.convolve(ImageProcessor.getImageDoubleArray(m_CurImage), ImageProcessor.gaussianBlur));
 		
 		// As with curImage and origImage we want to change the Sobel matrix
 		// accordingly without having to call the Sobel edge detection too much.
@@ -78,22 +76,12 @@ public class BiliteralSmoother
 				image[i][j] = afterAdjustment.getRGB();
 			}
 		}
-		
-		//m_CurImage = ImageProcessor.BiliteralConvolve(image);
 	}
-	
-/////////////////////////////////////////////////////
 	
 	public static BufferedImage RunBiliteralSmooth(BufferedImage img)
 	{
-		// create the first kernel
-		// start dynamic kernel - pickup flag
-		// start convolving
-		// remove dynamic kernel flag
 		return m_SmoothImage;
 	}
-
-//////////////////////////////////////////////////////////////////////////////////////	
 	
 	/**
 	 * Retrieves an image of the first step of the algorithm: The grayscale
