@@ -66,10 +66,9 @@ public class ImageProcessor
 		SetCorrectEdges(edgeSize, output, mirrorCalc, length, height);
 		
 		return output;
-
 	}
 
-	private static BufferedImage runBiliteralSmooth(int sigma)
+	private static BufferedImage runBiliteralSmooth(int sigma, int iterations)
 	{
 		BufferedImage image = new BufferedImage(m_OriginalImage.getWidth(), m_OriginalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 		
@@ -77,55 +76,55 @@ public class ImageProcessor
 		int imageRows = m_OriginalImage.getWidth();
 		
 		double divisor = (2 * Math.pow(sigma,2));
-		// The convolution process
-		for (int i = sigma; i < imageRows - sigma; i++)
+		for(int iter = 0; iter < iterations; iter++)
 		{
-			for (int j = sigma; j < imageCols - sigma; j++)
+			// The convolution process
+			for (int i = sigma; i < imageRows - sigma; i++)
 			{
-				int[] originalPixel = new int[3];
-				Color originalPointOfRefrencColor = new Color(m_OriginalImage.getRGB(i, j));
-				
-				originalPixel[0] = originalPointOfRefrencColor.getRed();
-				originalPixel[1] = originalPointOfRefrencColor.getGreen();
-				originalPixel[2] = originalPointOfRefrencColor.getBlue();
-				double sumRed = 0;
-				double sumGreen = 0;
-				double sumBlue = 0;
-				double noramlizerRed = 0;
-				double noramlizerGreen = 0;
-				double noramlizerBlue = 0;
-				
-				// this is where the magic happens
-				for (int blockRow = sigma - 1; blockRow >= -(sigma - 1); blockRow--)
+				for (int j = sigma; j < imageCols - sigma; j++)
 				{
-					for (int blockCol = sigma - 1; blockCol >= -(sigma - 1); blockCol--)
-					{
-
-						
-						double gaussian = Math.exp(-(Math.pow(blockRow, 2) + Math.pow(blockCol, 2))/divisor); 
-						double rangeRed = Math.exp(-Math.pow((m_OriginalImageRed[i - blockRow][j - blockCol] - originalPixel[0]),2)/divisor); 
-						double rangeGreen = Math.exp(-Math.pow((m_OriginalImageGreen[i - blockRow][j - blockCol] - originalPixel[1]),2)/divisor);
-						double rangeBlue = Math.exp(-Math.pow((m_OriginalImageBlue[i - blockRow][j - blockCol] - originalPixel[2]),2)/divisor);
-						
-						sumRed += gaussian * rangeRed * m_OriginalImageRed[i - blockRow][j - blockCol];
-						sumGreen += gaussian * rangeGreen * m_OriginalImageGreen[i - blockRow][j - blockCol];
-						sumBlue += gaussian * rangeBlue * m_OriginalImageBlue[i - blockRow][j - blockCol];
-						
-						noramlizerRed += gaussian * rangeRed;
-						noramlizerGreen += gaussian * rangeGreen;
-						noramlizerBlue += gaussian * rangeBlue;
-					}
+					int[] originalPixel = new int[3];
+					Color originalPointOfRefrencColor = new Color(m_OriginalImage.getRGB(i, j));
 					
+					originalPixel[0] = originalPointOfRefrencColor.getRed();
+					originalPixel[1] = originalPointOfRefrencColor.getGreen();
+					originalPixel[2] = originalPointOfRefrencColor.getBlue();
+					double sumRed = 0;
+					double sumGreen = 0;
+					double sumBlue = 0;
+					double noramlizerRed = 0;
+					double noramlizerGreen = 0;
+					double noramlizerBlue = 0;
+					
+					// this is where the magic happens
+					for (int blockRow = sigma - 1; blockRow >= -(sigma - 1); blockRow--)
+					{
+						for (int blockCol = sigma - 1; blockCol >= -(sigma - 1); blockCol--)
+						{
+							double gaussian = Math.exp(-(Math.pow(blockRow, 2) + Math.pow(blockCol, 2))/divisor); 
+							double rangeRed = Math.exp(-Math.pow((m_OriginalImageRed[i - blockRow][j - blockCol] - originalPixel[0]),2)/divisor); 
+							double rangeGreen = Math.exp(-Math.pow((m_OriginalImageGreen[i - blockRow][j - blockCol] - originalPixel[1]),2)/divisor);
+							double rangeBlue = Math.exp(-Math.pow((m_OriginalImageBlue[i - blockRow][j - blockCol] - originalPixel[2]),2)/divisor);
+							
+							sumRed += gaussian * rangeRed * m_OriginalImageRed[i - blockRow][j - blockCol];
+							sumGreen += gaussian * rangeGreen * m_OriginalImageGreen[i - blockRow][j - blockCol];
+							sumBlue += gaussian * rangeBlue * m_OriginalImageBlue[i - blockRow][j - blockCol];
+							
+							noramlizerRed += gaussian * rangeRed;
+							noramlizerGreen += gaussian * rangeGreen;
+							noramlizerBlue += gaussian * rangeBlue;
+						}
+					}
+					double finalRed = sumRed / noramlizerRed;
+					double finalGreen = sumGreen / noramlizerGreen;
+					double finalBlue = sumBlue / noramlizerBlue;
+					
+					image.setRGB(i, j, new Color((int)Math.round(finalRed), (int)Math.round(finalGreen), (int)Math.round(finalBlue)).getRGB());
 				}
-				double finalRed = sumRed / noramlizerRed;
-				double finalGreen = sumGreen / noramlizerGreen;
-				double finalBlue = sumBlue / noramlizerBlue;
-				
-				
-				image.setRGB(i, j, new Color((int)Math.round(finalRed), (int)Math.round(finalGreen), (int)Math.round(finalBlue)).getRGB());
 			}
+			
+			m_OriginalImage = image;
 		}
-		
 		return image;
 	}
 	
@@ -165,7 +164,7 @@ public class ImageProcessor
 	 * @param img
 	 * @return
 	 */
-	public static BufferedImage SmoothImage(BufferedImage img)
+	public static BufferedImage SmoothImage(BufferedImage img, int sigma, int iterations)
 	{
 		m_OriginalImage = img;
 		int width = img.getWidth();
@@ -179,7 +178,7 @@ public class ImageProcessor
 		setColoredImages(img, width, height, originalImageRed,
 				originalImageGreen, originalImageBlue);
 
-		return runBiliteralSmooth(7);
+		return runBiliteralSmooth(sigma, iterations);
 	}
 
 	/**
@@ -233,6 +232,21 @@ public class ImageProcessor
 				// as given in class
 				result[i][j] = (0.2989 * red + 0.5870 * green + 0.1140 * blue)
 								/ MAX_COLOR_SCALE;
+			}
+		}
+		return result;
+	}
+	
+	public static BufferedImage getImage(double[][] img)
+	{
+		BufferedImage result = new BufferedImage(img[0].length, img.length,BufferedImage.TYPE_INT_ARGB);
+
+		for (int i = 0; i < img.length; i++)
+		{
+			for (int j = 0; j < img[0].length; j++)
+			{
+				Color currentColor = new Color((int)img[i][j]);
+				result.setRGB(j, i, currentColor.getRGB()); 
 			}
 		}
 		return result;
@@ -369,7 +383,7 @@ public class ImageProcessor
 
 				if(blue > 200)
 				{
-					result.setRGB(i, j, new Color(255, 255, 255).getRGB());
+					result.setRGB(i, j, new Color(0, 0, 0).getRGB());
 				}
 			}
 		}

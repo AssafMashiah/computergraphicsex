@@ -1,6 +1,8 @@
 package ex1.gui;
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,12 +13,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -27,16 +31,16 @@ import ex1.model.ImageProcessor;
  * Frame of the main GUI of the application
  *
  */
-public class MainFrame extends JFrame {
-		
+public class MainFrame extends JFrame 
+{
 	private static final long serialVersionUID = 1L;
 
 	// Custom SWING component to display the image
 	private ImagePanel m_ImagePanel;
 	
-	protected ImageFrame m_GrayscaleFrame;
+	private ImageFrame m_GrayscaleFrame;
 	
-	protected ImageFrame m_EdgeFrame; 
+	private ImageFrame m_EdgeFrame; 
 	
 	// Image received as input
 	private BufferedImage m_RawImage;
@@ -47,9 +51,18 @@ public class MainFrame extends JFrame {
 	// Message to appear in About dialog. 
 	private String m_aboutMessage;
 
+	// New window
 	private boolean m_IsNewImage;
 
-	protected boolean m_Once = true;
+	// New window for Biliteral result
+	private ImageFrame m_BiliteralSmoothFrame;
+
+	// New window for smooth result
+	private ImageFrame m_SmoothFrame;
+	
+	private JFrame m_Settings;
+
+	protected boolean firstTime = true;
 	
 	/**
 	 * Create Frame GUI
@@ -63,10 +76,12 @@ public class MainFrame extends JFrame {
 		
 		// Create UI components
 		m_ImagePanel = new ImagePanel();
+		m_Settings = new JFrame();
+		m_Settings.setLayout(new FlowLayout());
 		
 		// Add UI components
 		this.getContentPane().setLayout(new BorderLayout());	
-		this.getContentPane().add(m_ImagePanel,BorderLayout.CENTER);
+		this.getContentPane().add(m_ImagePanel, BorderLayout.CENTER);
 		
 		// Handle window events 
 	    this.addWindowListener(new WindowAdapter()
@@ -80,20 +95,23 @@ public class MainFrame extends JFrame {
 	    // Add top menu
 	    JMenuBar menuBar = new JMenuBar();	 
 	    menuBar.add(createFileMenu());
-	    menuBar.add(createActionMenu());
-	    menuBar.add(createWindowMenu());	    	    
+	    menuBar.add(createActionMenu());    	    
 	    menuBar.add(createHelpMenu());
 	    this.setJMenuBar(menuBar);
-
+	    
 	    this.setResizable(false);
 		this.pack();
 	
 		// Create display frames
 		m_GrayscaleFrame = new ImageFrame("Grayscale");
 		m_EdgeFrame = new ImageFrame("Edges");
-
+		m_BiliteralSmoothFrame = new ImageFrame("Biliteral Smooth");
+		m_SmoothFrame = new ImageFrame("Gaussian Smooth");
+		
 		// Init model
 		this.m_biliteralSmoother = new BiliteralSmoother();
+		Container container = getContentPane();
+		container.setLayout(new FlowLayout());
 	}
 
 	/**
@@ -128,25 +146,19 @@ public class MainFrame extends JFrame {
 		});	    	    
 	    return fileMenu;
 	}
-
-	protected JMenu createWindowMenu() {
-	    JMenu viewMenu = new JMenu("TestWindow");
-	    viewMenu.setMnemonic(KeyEvent.VK_W);
+	
+	/**
+	 * Creates the menu which handles the scaling operations
+	 * @return An initialized menu
+	 */
+	protected JMenu createActionMenu()
+	{
+		JMenu menu = new JMenu("Filters");
+		menu.setMnemonic(KeyEvent.VK_F);		
 		
-		JMenuItem grayscaleItem = new JMenuItem("Grayscale");
-		grayscaleItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));	    		
-	    viewMenu.add(grayscaleItem);
-	    grayscaleItem.addActionListener(new ActionListener()
-	    {
-			public void actionPerformed(ActionEvent e)
-			{
-				m_GrayscaleFrame.setVisible(true);
-			}
-		});
-	    
-	    JMenuItem edgeItem = new JMenuItem("Edges");
+		JMenuItem edgeItem = new JMenuItem("Edges");
 	    edgeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));	    		    
-	    viewMenu.add(edgeItem);	    	    	    
+	    menu.add(edgeItem);	    	    	    
 	    edgeItem.addActionListener(new ActionListener()
 	    {
 			public void actionPerformed(ActionEvent e)
@@ -158,27 +170,107 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
-	    
-	    return viewMenu;
-	}
-	
-	/**
-	 * Creates the menu which handles the scaling operations
-	 * @return An initialized menu
-	 */
-	protected JMenu createActionMenu()
-	{
-		JMenu menu = new JMenu("Action");
-		menu.setMnemonic(KeyEvent.VK_A);		
+		menu.add(edgeItem);
 		
-		final JMenuItem chkSmooth = new JMenuItem();
-		chkSmooth.setText("Smooth");
+		JMenuItem grayscaleItem = new JMenuItem("Grayscale");
+		grayscaleItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));	    		
+		menu.add(grayscaleItem);
+	    grayscaleItem.addActionListener(new ActionListener()
+	    {
+			public void actionPerformed(ActionEvent e)
+			{
+				m_GrayscaleFrame.setVisible(true);
+			}
+		});
+	    menu.add(grayscaleItem);
+	    
+	    JMenuItem Smooth = new JMenuItem("Gaussian Smooth");
+	    Smooth.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));	    		
+		menu.add(Smooth);
+		Smooth.addActionListener(new ActionListener()
+	    {
+			public void actionPerformed(ActionEvent e)
+			{
+				m_SmoothFrame.setVisible(true);
+				if(m_SmoothFrame.isVisible())
+				{
+					m_SmoothFrame.showImage(ImageProcessor.getImage(ImageProcessor.convolve(ImageProcessor.getImageDoubleArray(m_RawImage), ImageProcessor.gaussianBlur)));
+				}
+			}
+		});
+	    menu.add(grayscaleItem);
+
+	    final JMenuItem chkSmooth = new JMenuItem();
+		chkSmooth.setText("Biliteral Smooth");
+		chkSmooth.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
 		chkSmooth.addActionListener(new ActionListener()
 		{
-					
 			public void actionPerformed(ActionEvent arg0)
 			{
-				setRawImage(ImageProcessor.SmoothImage(m_RawImage));
+				m_BiliteralSmoothFrame.setVisible(true);
+				if(m_BiliteralSmoothFrame.isVisible())
+				{
+					 // button
+				    JButton go = new JButton("Go!");
+				    
+				    // Sigma
+				    JTextField sigmaLabel = new JTextField("Enter 'Sigma' here", 15);
+				    sigmaLabel.setEditable(false);
+				    
+				    final JTextField sigmaText = new JTextField(10);
+				    
+				    JTextField iterationsLabel = new JTextField("Number of iterations", 15);
+				    iterationsLabel.setEditable(false);
+				    
+				    final JTextField iterationsText = new JTextField(10);
+				    
+					if(firstTime)
+					{
+						m_Settings.setResizable(false);
+					    m_Settings.pack();
+					    
+					    m_Settings.add(sigmaLabel);
+					    m_Settings.add(sigmaText);
+					    m_Settings.add(iterationsLabel);
+					    m_Settings.add(iterationsText);
+					    m_Settings.add(go);
+					    m_Settings.setSize(300, 90);
+					    
+					    m_Settings.setVisible(true);
+					    firstTime = false;
+					}
+					else
+					{
+						m_Settings.setVisible(true);
+					}
+				    
+					// Post the event from button
+				    go.addActionListener(new ActionListener()
+				    {
+						public void actionPerformed(ActionEvent e)
+						{
+							int sigma = 3;
+							int iterations = 1;
+							
+							try
+							{
+								sigma = Integer.parseInt(sigmaText.getText());
+								iterations = Integer.parseInt(iterationsText.getText());
+							}
+							catch (NumberFormatException nfe)
+							{
+								sigmaText.setText("");
+								iterationsText.setText("");
+							}
+							
+							if(sigma > 0 && sigma % 2 == 1 && sigma < 17)
+							{	
+								m_Settings.setVisible(false);
+								m_BiliteralSmoothFrame.showImage(ImageProcessor.SmoothImage(m_RawImage, sigma, iterations));
+							}
+						}
+					});
+				}
 				resetModel();				
 			}
 		});
@@ -186,16 +278,15 @@ public class MainFrame extends JFrame {
 		
 		final JMenuItem chkAddEdges = new JMenuItem();
 		chkAddEdges.setText("Add Edges");
+		chkAddEdges.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
 		chkAddEdges.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				if(m_Once)
+				if(m_BiliteralSmoothFrame.isVisible())
 				{
-					BufferedImage temp = ImageProcessor.addEdges(m_biliteralSmoother.getImage(), m_biliteralSmoother.getEdgeImage());
-					setRawImage(temp);
+					m_BiliteralSmoothFrame.showImage(ImageProcessor.addEdges(m_biliteralSmoother.getImage(), m_biliteralSmoother.getEdgeImage()));
 					resetModel();
-					m_Once = false;
 				}
 			}
 		});
@@ -208,19 +299,22 @@ public class MainFrame extends JFrame {
 	 * Create a simple help menu to access the About dialog
 	 * @return Menu
 	 */
-	protected JMenu createHelpMenu() {
+	protected JMenu createHelpMenu()
+	{
 		JMenu menu = new JMenu("Help");
 		menu.setMnemonic(KeyEvent.VK_H);
 		
 		JMenuItem menuItem = new JMenuItem();
 		menuItem.setText("About");
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, ActionEvent.CTRL_MASK));
 		menuItem.setMnemonic(KeyEvent.VK_A);
 		
 		menu.add(menuItem);
 		
-		menuItem.addActionListener(new ActionListener() {				
-
-			public void actionPerformed(ActionEvent e) {
+		menuItem.addActionListener(new ActionListener()
+		{				
+			public void actionPerformed(ActionEvent e)
+			{
 				showHelpAboutDialog();
 			}
 		});
@@ -296,7 +390,6 @@ public class MainFrame extends JFrame {
 				setRawImage(ImageIO.read(file));
 				
 				resetModel();
-				
 			}
 			catch (IOException e)
 			{
