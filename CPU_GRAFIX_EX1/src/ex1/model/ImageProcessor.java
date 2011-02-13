@@ -81,9 +81,9 @@ public class ImageProcessor
 		setColoredImages(img, width, height, originalImageRed,
 				originalImageGreen, originalImageBlue);
 		
-		convolve(originalImageRed, gaussianBlur);
-		convolve(originalImageGreen, gaussianBlur);
-		convolve(originalImageBlue, gaussianBlur);
+		originalImageRed = convolve(originalImageRed, gaussianBlur);
+        originalImageGreen = convolve(originalImageGreen, gaussianBlur);
+        originalImageBlue = convolve(originalImageBlue, gaussianBlur);
 		
 		BufferedImage returnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
@@ -94,7 +94,6 @@ public class ImageProcessor
 				returnImage.setRGB(i, j, new Color((int)Math.round(originalImageRed[i][j]), (int)Math.round(originalImageGreen[i][j]), (int)Math.round(originalImageBlue[i][j])).getRGB());
 			}
 		}
-		
 		
 		return returnImage;
 	}

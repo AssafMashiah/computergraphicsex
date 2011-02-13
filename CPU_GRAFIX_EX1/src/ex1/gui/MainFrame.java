@@ -67,6 +67,8 @@ public class MainFrame extends JFrame
 	private BufferedImage m_ImageToSave;
 
 	protected boolean firstTime = true;
+
+	protected BufferedImage m_GaussFilteredImage;
 	
 	/**
 	 * Create Frame GUI
@@ -199,7 +201,8 @@ public class MainFrame extends JFrame
 				m_SmoothFrame.setVisible(true);
 				if(m_SmoothFrame.isVisible())
 				{
-					m_SmoothFrame.showImage(ImageProcessor.convolve(m_RawImage, ImageProcessor.gaussianBlur));
+					m_GaussFilteredImage = ImageProcessor.convolve(m_RawImage, ImageProcessor.gaussianBlur);
+					m_SmoothFrame.showImage(m_GaussFilteredImage);
 				}
 			}
 		});
@@ -275,6 +278,8 @@ public class MainFrame extends JFrame
 							if(sigma > 0 && sigma % 2 == 1 && sigma < 17)
 							{	
 								m_Settings.setVisible(false);
+								sigmaText.setText("");
+								iterationsText.setText("");
 								m_ImageToSave = ImageProcessor.SmoothImage(m_RawImage, sigma, iterations);
 								m_BiliteralSmoothFrame.showImage(m_ImageToSave);
 							}
@@ -295,7 +300,7 @@ public class MainFrame extends JFrame
 			{
 				if(m_BiliteralSmoothFrame.isVisible())
 				{
-					m_BiliteralSmoothFrame.showImage(ImageProcessor.addEdges(m_biliteralSmoother.getImage(), m_biliteralSmoother.getEdgeImage()));
+					m_BiliteralSmoothFrame.showImage(ImageProcessor.addEdges(m_ImageToSave, m_biliteralSmoother.getEdgeImage()));
 					resetModel();
 				}
 			}
@@ -400,6 +405,20 @@ public class MainFrame extends JFrame
 				setRawImage(ImageIO.read(file));
 				
 				resetModel();
+				if(m_EdgeFrame.isVisible())
+				{
+					m_EdgeFrame.setVisible(false);
+				}
+				
+				if(m_GrayscaleFrame.isVisible())
+				{
+					m_GrayscaleFrame.setVisible(false);
+				}
+				
+				m_EdgeFrame = new ImageFrame("Edges");
+				m_BiliteralSmoothFrame = new ImageFrame("Biliteral Smooth");
+				m_SmoothFrame = new ImageFrame("Gaussian Smooth");
+				m_GaussFilteredImage = null;
 			}
 			catch (IOException e)
 			{
