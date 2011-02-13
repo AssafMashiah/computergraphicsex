@@ -60,7 +60,11 @@ public class MainFrame extends JFrame
 	// New window for smooth result
 	private ImageFrame m_SmoothFrame;
 	
+	// Settings window
 	private JFrame m_Settings;
+	
+	// The Image that will be saved
+	private BufferedImage m_ImageToSave;
 
 	protected boolean firstTime = true;
 	
@@ -78,7 +82,7 @@ public class MainFrame extends JFrame
 		m_ImagePanel = new ImagePanel();
 		m_Settings = new JFrame();
 		m_Settings.setLayout(new FlowLayout());
-		
+
 		// Add UI components
 		this.getContentPane().setLayout(new BorderLayout());	
 		this.getContentPane().add(m_ImagePanel, BorderLayout.CENTER);
@@ -118,7 +122,8 @@ public class MainFrame extends JFrame
 	 * Create the File->open/File->save menu item.
 	 * @return
 	 */
-	protected JMenu createFileMenu() {
+	protected JMenu createFileMenu()
+	{
 	    JMenu fileMenu = new JMenu("File");
 	    fileMenu.setMnemonic(KeyEvent.VK_F);
 	    
@@ -194,7 +199,7 @@ public class MainFrame extends JFrame
 				m_SmoothFrame.setVisible(true);
 				if(m_SmoothFrame.isVisible())
 				{
-					m_SmoothFrame.showImage(ImageProcessor.getImage(ImageProcessor.convolve(ImageProcessor.getImageDoubleArray(m_RawImage), ImageProcessor.gaussianBlur)));
+					m_SmoothFrame.showImage(ImageProcessor.convolve(m_RawImage, ImageProcessor.gaussianBlur));
 				}
 			}
 		});
@@ -203,6 +208,10 @@ public class MainFrame extends JFrame
 	    final JMenuItem chkSmooth = new JMenuItem();
 		chkSmooth.setText("Biliteral Smooth");
 		chkSmooth.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
+		
+		JMenuBar menuBar = new JMenuBar();	 
+	    menuBar.add(createFileMenu());
+	    
 		chkSmooth.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
@@ -266,7 +275,8 @@ public class MainFrame extends JFrame
 							if(sigma > 0 && sigma % 2 == 1 && sigma < 17)
 							{	
 								m_Settings.setVisible(false);
-								m_BiliteralSmoothFrame.showImage(ImageProcessor.SmoothImage(m_RawImage, sigma, iterations));
+								m_ImageToSave = ImageProcessor.SmoothImage(m_RawImage, sigma, iterations);
+								m_BiliteralSmoothFrame.showImage(m_ImageToSave);
 							}
 						}
 					});
@@ -410,13 +420,13 @@ public class MainFrame extends JFrame
 		fd.setFileFilter(new FileNameExtensionFilter("png", "png"));
 		fd.showSaveDialog(this);		
 		
-		File file = fd.getSelectedFile(); 
+		File file = fd.getSelectedFile();
 		
 		if(file != null)
-		{			
+		{
 			try
 			{
-				ImageIO.write(this.m_ImagePanel.getImage(), "png", file);
+				ImageIO.write(this.m_ImageToSave, "png", file);
 			}
 			catch (IOException e)
 			{
@@ -443,14 +453,14 @@ public class MainFrame extends JFrame
             Toolkit.getDefaultToolkit().getScreenSize();
 		
           Dimension labelSize = this.getSize();          
-          this.setLocation(screenSize.width/2 - (labelSize.width/2),
-                      screenSize.height/2 - (labelSize.height/2));
+          this.setLocation(screenSize.width / 2 - (labelSize.width/2),
+                      screenSize.height / 2 - (labelSize.height/2));
 
           this.m_EdgeFrame.setImageSize(this.m_ImagePanel.getPreferredSize());
           this.m_GrayscaleFrame.setImageSize(this.m_ImagePanel.getSize());
           
-          this.m_EdgeFrame.setLocation(this.getX()-this.getWidth(), this.getY()+this.getContentPane().getY());
-          this.m_GrayscaleFrame.setLocation(this.getX()+this.getWidth(), this.getY()+this.getContentPane().getY());
+          this.m_EdgeFrame.setLocation(this.getX() - this.getWidth(), this.getY() + this.getContentPane().getY());
+          this.m_GrayscaleFrame.setLocation(this.getX() + this.getWidth(), this.getY() + this.getContentPane().getY());
 	}
 
 	/**

@@ -67,6 +67,37 @@ public class ImageProcessor
 		
 		return output;
 	}
+	
+	public static BufferedImage convolve(BufferedImage img, double[][] gaussianBlur)
+	{
+		int width = img.getWidth();
+		int height = img.getHeight();
+		
+		double[][] originalImageRed = new double[width][height];
+		double[][] originalImageGreen = new double[width][height];
+		double[][] originalImageBlue = new double[width][height];
+		
+		// saves the image as red, green and blue images
+		setColoredImages(img, width, height, originalImageRed,
+				originalImageGreen, originalImageBlue);
+		
+		convolve(originalImageRed, gaussianBlur);
+		convolve(originalImageGreen, gaussianBlur);
+		convolve(originalImageBlue, gaussianBlur);
+		
+		BufferedImage returnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		
+		for(int i = 0; i < width; i++)
+		{
+			for(int j = 0; j < height; j++)
+			{
+				returnImage.setRGB(i, j, new Color((int)Math.round(originalImageRed[i][j]), (int)Math.round(originalImageGreen[i][j]), (int)Math.round(originalImageBlue[i][j])).getRGB());
+			}
+		}
+		
+		
+		return returnImage;
+	}
 
 	private static BufferedImage runBiliteralSmooth(int sigma, int iterations)
 	{
@@ -388,5 +419,5 @@ public class ImageProcessor
 			}
 		}
 		return result;
-	}	
+	}
 }
