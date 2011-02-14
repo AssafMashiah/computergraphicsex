@@ -268,20 +268,27 @@ public class MainFrame extends JFrame
 							{
 								sigma = Integer.parseInt(sigmaText.getText());
 								iterations = Integer.parseInt(iterationsText.getText());
+								
+								System.out.println(sigma + ", " + iterations);
+								if(sigma > 0 && sigma % 2 == 1 && iterations >= 1)
+								{	
+									System.out.println("yey");
+									m_Settings.setVisible(false);
+									sigmaText.setText("");
+									iterationsText.setText("");
+									m_ImageToSave = ImageProcessor.SmoothImage(m_RawImage, sigma, iterations);
+									m_BiliteralSmoothFrame.showImage(m_ImageToSave);
+								}
+								else
+								{
+									sigmaText.setText("");
+									iterationsText.setText("");
+								}
 							}
 							catch (NumberFormatException nfe)
 							{
 								sigmaText.setText("");
 								iterationsText.setText("");
-							}
-							
-							if(sigma > 0 && sigma % 2 == 1 && sigma < 17)
-							{	
-								m_Settings.setVisible(false);
-								sigmaText.setText("");
-								iterationsText.setText("");
-								m_ImageToSave = ImageProcessor.SmoothImage(m_RawImage, sigma, iterations);
-								m_BiliteralSmoothFrame.showImage(m_ImageToSave);
 							}
 						}
 					});
@@ -401,24 +408,37 @@ public class MainFrame extends JFrame
 		{			
 			try
 			{
-				// Create BufferedImage from file
-				setRawImage(ImageIO.read(file));
-				
-				resetModel();
 				if(m_EdgeFrame.isVisible())
 				{
 					m_EdgeFrame.setVisible(false);
 				}
+				m_EdgeFrame.dispose();
 				
 				if(m_GrayscaleFrame.isVisible())
 				{
 					m_GrayscaleFrame.setVisible(false);
 				}
+				m_GrayscaleFrame.dispose();
+				
+				if(m_BiliteralSmoothFrame.isVisible())
+				{
+					m_BiliteralSmoothFrame.setVisible(false);
+				}
+				m_BiliteralSmoothFrame.dispose();
+				
+				if(m_SmoothFrame.isVisible())
+				{
+					m_SmoothFrame.setVisible(false);
+				}
+				m_SmoothFrame.dispose();
 				
 				m_EdgeFrame = new ImageFrame("Edges");
 				m_BiliteralSmoothFrame = new ImageFrame("Biliteral Smooth");
 				m_SmoothFrame = new ImageFrame("Gaussian Smooth");
-				m_GaussFilteredImage = null;
+
+				// Create BufferedImage from file
+				setRawImage(ImageIO.read(file));
+				resetModel();
 			}
 			catch (IOException e)
 			{
@@ -468,18 +488,11 @@ public class MainFrame extends JFrame
 	 */
 	protected void updateScreenPosition()
 	{
-		Dimension screenSize =
-            Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		
           Dimension labelSize = this.getSize();          
           this.setLocation(screenSize.width / 2 - (labelSize.width/2),
                       screenSize.height / 2 - (labelSize.height/2));
-
-          this.m_EdgeFrame.setImageSize(this.m_ImagePanel.getPreferredSize());
-          this.m_GrayscaleFrame.setImageSize(this.m_ImagePanel.getSize());
-          
-          this.m_EdgeFrame.setLocation(this.getX() - this.getWidth(), this.getY() + this.getContentPane().getY());
-          this.m_GrayscaleFrame.setLocation(this.getX() + this.getWidth(), this.getY() + this.getContentPane().getY());
 	}
 
 	/**
