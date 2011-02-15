@@ -400,7 +400,7 @@ public class ImageProcessor
 	 * @param img
 	 * @param edgeImg
 	 */
-	public static BufferedImage addEdges(BufferedImage img, BufferedImage edgeImg)
+	public static BufferedImage addEdges(BufferedImage img, BufferedImage edgeImg, int threshold)
 	{
 		BufferedImage result = img;
 		
@@ -411,7 +411,7 @@ public class ImageProcessor
 				Color tempColor = new Color(edgeImg.getRGB(i, j));
 				int blue = tempColor.getBlue();
 
-				if(blue > 200)
+				if(blue > threshold)
 				{
 					result.setRGB(i, j, new Color(0, 0, 0).getRGB());
 				}
