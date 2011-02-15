@@ -28,6 +28,7 @@ public class ImageProcessor
 	public static  double[][] m_OriginalImageRed;
 	public static  double[][] m_OriginalImageGreen;
 	public static  double[][] m_OriginalImageBlue;
+	
 	/**
 	 * Applies a Convolution operator to a given matrix and kernel.
 	 * 
@@ -66,6 +67,37 @@ public class ImageProcessor
 		SetCorrectEdges(edgeSize, output, mirrorCalc, length, height);
 		
 		return output;
+	}
+	
+	public static double[][] gaussianBlur(int radius)
+	{
+		 int size = radius * 2 + 1;
+        double[][] kernel = new double[size][size];
+        
+        double sigma = radius / 3.0f;
+        double twoSigmaSquare = 2.0f * sigma * sigma;
+        double sigmaRoot = (float) Math.sqrt(twoSigmaSquare * Math.PI);
+        double total = 0;
+        
+        for(int i = -radius ; i <= radius ; i++)
+        {
+        	for(int j = -radius; j <= radius ; j++)
+        	{
+        		double distance = i * i + j * j;
+        		kernel[i + radius][j + radius] = (double) Math.exp(-distance / twoSigmaSquare) / sigmaRoot;
+        		total += (double) Math.exp(-distance / twoSigmaSquare) / sigmaRoot;
+        	}
+        }
+        
+        for(int i = 0 ; i < kernel.length ; i++)
+        {
+        	for(int j = 0; j <kernel.length ; j++)
+        	{
+        		kernel[i][j] = kernel[i][j] /total;
+        	}
+        }
+
+        return kernel;
 	}
 	
 	public static BufferedImage convolve(BufferedImage img, double[][] gaussianBlur)

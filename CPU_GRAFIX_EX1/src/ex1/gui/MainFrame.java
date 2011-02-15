@@ -84,6 +84,8 @@ public class MainFrame extends JFrame {
 
 	protected boolean m_GotImage = false;
 
+	protected boolean m_BilateralDone = false;
+
 	/**
 	 * Create Frame GUI
 	 * 
@@ -190,6 +192,7 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				showFileOpenDialog();
 				m_GotImage = true;
+				m_BilateralDone = false;
 			}
 		});
 
@@ -252,49 +255,36 @@ public class MainFrame extends JFrame {
 		menu.add(grayscaleItem);
 
 		JMenuItem Smooth = new JMenuItem("Gaussian Smooth");
-		Smooth.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G,
-				ActionEvent.CTRL_MASK));
+		Smooth.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
 		menu.add(Smooth);
-		Smooth.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		Smooth.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				if(m_GotImage)
 				{
-					if(!m_SmoothFrame.isVisible())
-					{
-						m_Settings.setVisible(true);
-					}
-					else
-					{
-						m_SmoothFrame.setVisible(false);
-					}
-					
-					int sigma = SIGMA;
-					int iterations = ITERATIONS;
-					
 					if(m_Settings.isVisible())
 					{
-						try {
+						int sigma = SIGMA;
+						try
+						{
 							sigma = Integer.parseInt(m_SigmaText.getText());
-							iterations = Integer.parseInt(m_IterationsText.getText());
 		
-							if (sigma > 0 && sigma % 2 == 1 && iterations >= 1) {
-								m_Settings.setVisible(false);
-								m_SigmaText.setText("");
-								m_IterationsText.setText("");
-								
-						
-							m_GaussFilteredImage = ImageProcessor.convolve(m_RawImage,
-									ImageProcessor.gaussianBlur);
-							m_SmoothFrame.showImage(m_GaussFilteredImage);
-							} else {
-								m_SigmaText.setText("");
-								m_IterationsText.setText("");
+							if (sigma > 0 && sigma % 2 == 1)
+							{
+								m_GaussFilteredImage = ImageProcessor.convolve(m_RawImage, ImageProcessor.gaussianBlur(sigma));
+								m_SmoothFrame.showImage(m_GaussFilteredImage);
+								m_SmoothFrame.setVisible(true);
+								m_BilateralDone = true;
 							}
-						} catch (NumberFormatException nfe) {
+						}
+						catch (NumberFormatException nfe)
+						{
 							m_SigmaText.setText("");
 							m_IterationsText.setText("");
+							m_ThresholdText.setText("");
 						}
-				}
+					}
 				}
 			}
 		});
@@ -302,39 +292,44 @@ public class MainFrame extends JFrame {
 
 		final JMenuItem chkSmooth = new JMenuItem();
 		chkSmooth.setText("Biliteral Smooth");
-		chkSmooth.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B,
-				ActionEvent.CTRL_MASK));
+		chkSmooth.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(createFileMenu());
 
-		chkSmooth.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				m_BiliteralSmoothFrame.setVisible(true);
-
-				int sigma = SIGMA;
-				int iterations = ITERATIONS;
-				
-				if(m_Settings.isVisible())
+		chkSmooth.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if(m_GotImage)
 				{
-					try {
-						sigma = Integer.parseInt(m_SigmaText.getText());
-						iterations = Integer.parseInt(m_IterationsText.getText());
-	
-						if (sigma > 0 && sigma % 2 == 1 && iterations >= 1) {
-							m_Settings.setVisible(false);
-							m_SigmaText.setText("");
-							m_IterationsText.setText("");
-							m_ImageToSave = ImageProcessor.SmoothImage(m_RawImage,
-									sigma, iterations);
-							m_BiliteralSmoothFrame.showImage(m_ImageToSave);
-						} else {
-							m_SigmaText.setText("");
-							m_IterationsText.setText("");
+					if(m_Settings.isVisible())
+					{
+						int sigma = SIGMA;
+						int iterations = ITERATIONS;
+						
+						if(m_Settings.isVisible())
+						{
+							try
+							{
+								sigma = Integer.parseInt(m_SigmaText.getText());
+								iterations = Integer.parseInt(m_IterationsText.getText());
+			
+								if (sigma > 0 && sigma % 2 == 1 && iterations >= 1)
+								{
+									m_ImageToSave = ImageProcessor.SmoothImage(m_RawImage, sigma, iterations);
+									m_BiliteralSmoothFrame.setVisible(true);
+									m_BiliteralSmoothFrame.showImage(m_ImageToSave);
+									m_BilateralDone = true;
+								}
+							} 
+							catch (NumberFormatException nfe)
+							{
+								m_SigmaText.setText("");
+								m_IterationsText.setText("");
+								m_ThresholdText.setText("");
+							}
 						}
-					} catch (NumberFormatException nfe) {
-						m_SigmaText.setText("");
-						m_IterationsText.setText("");
 					}
 				}
 				resetModel();
@@ -344,24 +339,31 @@ public class MainFrame extends JFrame {
 
 		final JMenuItem chkAddEdges = new JMenuItem();
 		chkAddEdges.setText("Abstract image");
-		chkAddEdges.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
-				ActionEvent.CTRL_MASK));
-		chkAddEdges.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				int threshold = THRESHOLD;
-				if (m_BiliteralSmoothFrame.isVisible() && m_Settings.isVisible()) {
-					try {
-						threshold = Integer.parseInt(m_ThresholdText.getText());
-						if(threshold > 0 && threshold < 255)
+		chkAddEdges.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.CTRL_MASK));
+		chkAddEdges.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if(m_GotImage && m_BilateralDone)
+				{
+					int threshold = THRESHOLD;
+					if (m_BiliteralSmoothFrame.isVisible())
+					{
+						try
 						{
-							m_BiliteralSmoothFrame.showImage(ImageProcessor.addEdges(m_ImageToSave, m_biliteralSmoother.getEdgeImage(), threshold));
+							threshold = Integer.parseInt(m_ThresholdText.getText());
+							if(threshold > 0 && threshold < 255)
+							{
+								m_BiliteralSmoothFrame.showImage(ImageProcessor.addEdges(m_ImageToSave, m_biliteralSmoother.getEdgeImage(), threshold));
+							}
 						}
-							
-					} catch (NumberFormatException nfe) {
-						m_ThresholdText.setText("");
+						catch (NumberFormatException nfe)
+						{
+							m_ThresholdText.setText("");
+						}
+						
+						resetModel();
 					}
-					
-					resetModel();
 				}
 			}
 		});
@@ -375,23 +377,26 @@ public class MainFrame extends JFrame {
 	 * 
 	 * @return Menu
 	 */
-	protected JMenu createHelpMenu() {
+	protected JMenu createHelpMenu()
+	{
 		JMenu menu = new JMenu("Help");
 		menu.setMnemonic(KeyEvent.VK_H);
 
 		JMenuItem menuItem = new JMenuItem();
 		menuItem.setText("About");
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1,
-				ActionEvent.CTRL_MASK));
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, ActionEvent.CTRL_MASK));
 		menuItem.setMnemonic(KeyEvent.VK_A);
 
 		menu.add(menuItem);
 
-		menuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		menuItem.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				showHelpAboutDialog();
 			}
 		});
+		
 		return menu;
 	}
 
@@ -404,7 +409,8 @@ public class MainFrame extends JFrame {
 	 * @param aboutMessage
 	 *            A message to appear in the about dialog
 	 */
-	public void initialize(BufferedImage img, String aboutMessage) {
+	public void initialize(BufferedImage img, String aboutMessage)
+	{
 		this.m_aboutMessage = aboutMessage;
 		this.setRawImage(img);
 		resetModel();
@@ -415,8 +421,10 @@ public class MainFrame extends JFrame {
 	 * resets the slider.
 	 * 
 	 */
-	protected void resetModel() {
-		if (m_RawImage != null) {
+	protected void resetModel()
+	{
+		if (m_RawImage != null)
+		{
 			m_biliteralSmoother.init(m_RawImage);
 
 			m_GrayscaleFrame.showImage(m_biliteralSmoother.getGrayscaleImage());
@@ -425,7 +433,8 @@ public class MainFrame extends JFrame {
 			m_ImagePanel.repaint();
 		}
 
-		if (m_IsNewImage) {
+		if (m_IsNewImage)
+		{
 			this.pack();
 			updateScreenPosition();
 			m_IsNewImage = false;
@@ -437,7 +446,8 @@ public class MainFrame extends JFrame {
 	 * 
 	 * @param rawImage
 	 */
-	protected void setRawImage(BufferedImage rawImage) {
+	protected void setRawImage(BufferedImage rawImage)
+	{
 		this.m_RawImage = rawImage;
 		m_IsNewImage = true;
 	}
@@ -448,7 +458,8 @@ public class MainFrame extends JFrame {
 	 * input image and displays it.
 	 * 
 	 */
-	protected void showFileOpenDialog() {
+	protected void showFileOpenDialog()
+	{
 		JFileChooser fd = new JFileChooser();
 
 		fd.setFileFilter(new FileNameExtensionFilter("Images", "png", "jpg",
@@ -457,24 +468,30 @@ public class MainFrame extends JFrame {
 
 		File file = fd.getSelectedFile();
 
-		if (file != null) {
-			try {
-				if (m_EdgeFrame.isVisible()) {
+		if (file != null)
+		{
+			try
+			{
+				if (m_EdgeFrame.isVisible())
+				{
 					m_EdgeFrame.setVisible(false);
 				}
 				m_EdgeFrame.dispose();
 
-				if (m_GrayscaleFrame.isVisible()) {
+				if (m_GrayscaleFrame.isVisible())
+				{
 					m_GrayscaleFrame.setVisible(false);
 				}
 				m_GrayscaleFrame.dispose();
 
-				if (m_BiliteralSmoothFrame.isVisible()) {
+				if (m_BiliteralSmoothFrame.isVisible())
+				{
 					m_BiliteralSmoothFrame.setVisible(false);
 				}
 				m_BiliteralSmoothFrame.dispose();
 
-				if (m_SmoothFrame.isVisible()) {
+				if (m_SmoothFrame.isVisible())
+				{
 					m_SmoothFrame.setVisible(false);
 				}
 				m_SmoothFrame.dispose();
@@ -486,7 +503,9 @@ public class MainFrame extends JFrame {
 				// Create BufferedImage from file
 				setRawImage(ImageIO.read(file));
 				resetModel();
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -497,7 +516,8 @@ public class MainFrame extends JFrame {
 	 * formats as well (jpg, bmp,...). Saves currently displayed image.
 	 * 
 	 */
-	protected void showFileSaveDialog() {
+	protected void showFileSaveDialog()
+	{
 		JFileChooser fd = new JFileChooser();
 
 		fd.setFileFilter(new FileNameExtensionFilter("png", "png"));
@@ -505,10 +525,14 @@ public class MainFrame extends JFrame {
 
 		File file = fd.getSelectedFile();
 
-		if (file != null) {
-			try {
+		if (file != null)
+		{
+			try
+			{
 				ImageIO.write(this.m_ImageToSave, "png", file);
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -517,7 +541,8 @@ public class MainFrame extends JFrame {
 	/**
 	 * Shows the about dialog
 	 */
-	protected void showHelpAboutDialog() {
+	protected void showHelpAboutDialog()
+	{
 		JOptionPane.showMessageDialog(this, m_aboutMessage, "About",
 				JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -525,7 +550,8 @@ public class MainFrame extends JFrame {
 	/**
 	 * Places the frame at the center of the screen
 	 */
-	protected void updateScreenPosition() {
+	protected void updateScreenPosition() 
+	{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 		Dimension labelSize = this.getSize();
@@ -536,15 +562,20 @@ public class MainFrame extends JFrame {
 	/**
 	 * Tells Swing to paint GUI as if it is native (i.e. uses OS GUI style)
 	 */
-	public static void setNativeLookAndFeel() {
-		try {
+	public static void setNativeLookAndFeel()
+	{
+		try
+		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			System.out.println("Error setting native LAF: " + e);
 		}
 	}
 
-	protected BufferedImage getRawImage() {
+	protected BufferedImage getRawImage()
+	{
 		return m_RawImage;
 	}
 }
