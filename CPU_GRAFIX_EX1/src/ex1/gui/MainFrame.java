@@ -82,7 +82,7 @@ public class MainFrame extends JFrame {
 	private final int ITERATIONS = 1;
 	private final int THRESHOLD = 225;
 
-	protected boolean m_CanWork = false;
+	protected boolean m_GotImage = false;
 
 	/**
 	 * Create Frame GUI
@@ -189,7 +189,7 @@ public class MainFrame extends JFrame {
 		fileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				showFileOpenDialog();
-				m_CanWork = true;
+				m_GotImage = true;
 			}
 		});
 
@@ -230,7 +230,7 @@ public class MainFrame extends JFrame {
 		edgeItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				m_EdgeFrame.setVisible(true);
-				if (m_EdgeFrame.isVisible() && m_CanWork) {
+				if (m_EdgeFrame.isVisible() && m_GotImage) {
 					m_EdgeFrame.showImage(m_biliteralSmoother.getEdgeImage());
 				}
 			}
@@ -243,7 +243,7 @@ public class MainFrame extends JFrame {
 		menu.add(grayscaleItem);
 		grayscaleItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(m_CanWork)
+				if(m_GotImage)
 				{
 					m_GrayscaleFrame.setVisible(true);
 				}
@@ -257,7 +257,7 @@ public class MainFrame extends JFrame {
 		menu.add(Smooth);
 		Smooth.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(m_CanWork)
+				if(m_GotImage)
 				{
 					if(!m_SmoothFrame.isVisible())
 					{
@@ -265,7 +265,7 @@ public class MainFrame extends JFrame {
 					}
 					else
 					{
-						m_SmoothFrame.setVisible(true);
+						m_SmoothFrame.setVisible(false);
 					}
 					
 					int sigma = SIGMA;
