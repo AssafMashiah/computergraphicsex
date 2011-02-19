@@ -37,8 +37,12 @@ public class Cylinder extends Surface
 
 	public Vec normalAt(Vec intersection, Ray ray)
 	{
-		// intersection - (0,0,z)
-		return Vec.sub(intersection, new Vec(this.origin.x,this.origin.y,intersection.z));
+		;// intersection - (0,0,z)
+		Vec normal =  Vec.sub(intersection, new Vec(this.origin.x,this.origin.y,intersection.z));
+		normal.normalize();
+		normal.negate();
+		return normal;
+		
 	}
 	
 	@Override
@@ -59,10 +63,9 @@ public class Cylinder extends Surface
 		// first if
 		// origin <= arbitraryPoint.z <= origin + height
 		// see http://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html for more info
-		double a = Math.pow(ray.v.x, 2) + Math.pow(ray.v.x, 2);
+		double a = Math.pow(ray.v.x, 2) + Math.pow(ray.v.y, 2);
 		double b = 2 * ((ray.p.x - this.origin.x) * ray.v.x + (ray.p.y - this.origin.y) * ray.v.y); 
 		double c = Math.pow((ray.p.x - this.origin.x), 2) + Math.pow((ray.p.y - this.origin.y), 2) - Math.pow(this.radius, 2);
-		System.out.println(this.radius);
 		double delta = Math.sqrt(Math.pow(b, 2) - 4 * a * c);
 		// System.out.println(delta);
 		if(delta < 0)
