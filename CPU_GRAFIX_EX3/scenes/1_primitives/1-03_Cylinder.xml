@@ -14,8 +14,11 @@
 
 	<cylindar 
 	origin = "0 0 0"
-	radius = "0.125"
+	radius = "0.25"
 	height = "0.5"
+
+	mtl-specular = "1 1 0"
+	mtl-shininess = "5"
 	/>
 
 	<light-point 
