@@ -7,7 +7,6 @@ import java.util.Map;
 
 /**
  * Contains a scene description. Ensures syntactic correctness but not semantic.
- * 
  */
 public class SceneDescriptor {
 
