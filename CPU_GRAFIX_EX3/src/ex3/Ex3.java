@@ -1,8 +1,7 @@
 package ex3;
 
 import java.io.File;
-
-import ex3.gui.MainFrame;
+import ex3.gui.*;
 
 public class Ex3 {
 
