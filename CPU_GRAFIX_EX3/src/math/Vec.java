@@ -9,11 +9,20 @@ import java.util.Scanner;
  * 
  */
 public class Vec {
-	
+
 	protected static final int MINUS_ONE = -1;
 	protected static final int ZERO = 0;
 
-	// ============ BEGIN NEW STUFF ===============
+	/**
+	 * Vector data. Allowed to be accessed publicly for performance reasons
+	 */
+	public double x, y, z;
+
+	/**
+	 * This is for the parser in the ex-3
+	 * 
+	 * @param v
+	 */
 	public Vec(String v) {
 		Scanner s = new Scanner(v);
 		x = s.nextDouble();
@@ -21,19 +30,22 @@ public class Vec {
 		z = s.nextDouble();
 	}
 
+	/**
+	 * Turn a vector to Color
+	 * 
+	 * @return
+	 */
 	public Color toColor() {
+		if (x < 0 || y < 0 || z < 0) {
+			throw new IllegalArgumentException("Color must be: 0 < Color < 1");
+		}
+
 		float r = (float) (x > 1 ? 1 : x);
 		float g = (float) (y > 1 ? 1 : y);
 		float b = (float) (z > 1 ? 1 : z);
+
 		return new Color(r, g, b);
 	}
-
-	// ============ END NEW STUFF ===============
-
-	/**
-	 * Vector data. Allowed to be accessed publicly for performance reasons
-	 */
-	public double x, y, z;
 
 	/**
 	 * Initialize vector to (0,0,0)
@@ -79,11 +91,11 @@ public class Vec {
 	 * @return The reflected vector
 	 */
 	public Vec reflect(Vec normal) {
-		  Vec u = new Vec(this.x, this.y ,this.z);
-		  double refSize = 2.0 * u.dotProd(normal);
-		  Vec res = new Vec(normal);
-		  res.scale(refSize);
-		  return  sub(u,res);
+		Vec u = new Vec(this.x, this.y, this.z);
+		double refSize = 2.0 * u.dotProd(normal);
+		Vec res = new Vec(normal);
+		res.scale(refSize);
+		return sub(u, res);
 	}
 
 	/**
